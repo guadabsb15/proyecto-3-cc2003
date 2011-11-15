@@ -38,57 +38,38 @@ public class AnalizadorTest {
     }
 
     /**
-     * Test of separarParentesis method, of class Analizador.
+     * Test of separarAritmetica method, of class Analizador.
      */
     @Test
-    public void testSepararExpresion() {
-        System.out.println("separarExpresion");
-        String exp = "(* 4 5 (+ 3 (/ 6 2)) 5 (- 3 1))";
-        try {
-            String[] tokens = Analizador.separarExpresion(exp); 
-            for (int i = 0; i < tokens.length; i++) {
-                System.out.println(tokens[i]);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    public void testSepararAritmetica() throws Exception {
+        System.out.println("separarAritmetica");
+        String exp = "(+ 3 2)";
+        String[] campos = Analizador.separarAritmetica(exp);
+        System.out.println(campos[0]);
+        System.out.println(campos[1]);
         /*
-        exp = "(+ 3 2) 4 5";
-        try {
-            String[] tokens = Analizador.separarExpresion(exp); 
-            for (int i = 0; i < tokens.length; i++) {
-            System.out.println(tokens[i]);
-        }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        
-        exp = "4 5";
-        try {
-            String[] tokens = Analizador.separarExpresion(exp); 
-            tokens = Analizador.separarExpresion(tokens[1]);
-            System.out.println(tokens[1]);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }*/
-           
+        exp = "(+  (+ 9 9) (- 3 2) 3)";
+        campos = Analizador.separarAritmetica(exp);
+        System.out.println(campos[0]);
+        System.out.println(campos[1]);*/
     }
     
     /**
-     * Test of separarParametros method, of class Analizador.
+     * Test of separarAritmetica method, of class Analizador.
      */
     @Test
-    public void testSepararParametros() {
-        System.out.println("separarParametros");
-        String exp = "* 4 5 (+ 3 (/ 6 2)) 5 (- 3 1)";
-        try {
-            String[] tokens = Analizador.separarExpresion(exp); 
-            ArrayList parametros = Analizador.separarParametros(tokens[1]);
-            for (int i = 0; i < parametros.size(); i++) {
-                System.out.println(parametros.get(i));
-            }
-        }   catch (Exception e) {
-            System.out.println(e.getMessage());
-        }   
+    public void testValidar() throws Exception {
+        System.out.println("Validar");
+        String exp = "(+ 3 2)";
+        assertEquals(true, Analizador.validar(exp));
+        
+        exp = "3";
+        assertEquals(true, Analizador.validar(exp));
+        
+        exp = "(+  (+ 9 9) (- 3 2) 3";
+        assertEquals(false, Analizador.validar(exp));
+
     }
+
+
 }
