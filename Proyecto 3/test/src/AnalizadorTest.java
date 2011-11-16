@@ -38,24 +38,26 @@ public class AnalizadorTest {
     }
 
     /**
-     * Test of separarAritmetica method, of class Analizador.
+     * Test of separarParametros method, of class Analizador.
      */
     @Test
-    public void testSepararAritmetica() throws Exception {
-        System.out.println("separarAritmetica");
-        String exp = "(+ 3 2)";
-        String[] campos = Analizador.separarAritmetica(exp);
-        System.out.println(campos[0]);
-        System.out.println(campos[1]);
-        /*
-        exp = "(+  (+ 9 9) (- 3 2) 3)";
-        campos = Analizador.separarAritmetica(exp);
-        System.out.println(campos[0]);
-        System.out.println(campos[1]);*/
+    public void testSepararParametros() throws Exception {
+        System.out.println("separarParametros");
+        String exp = "3 2";
+        ArrayList campos = Analizador.separarParametros(exp);
+        System.out.println(campos.get(0));
+        System.out.println(campos.get(1));
+        
+        exp = "(+ 3 (- 2 3)) (/ 2 2) 3";
+        campos = Analizador.separarParametros(exp);
+        assertEquals(campos.get(0), "(+ 3 (- 2 3))");
+        assertEquals(campos.get(1), "(/ 2 2)");
+        assertEquals(campos.get(2), "3");
+        
     }
     
     /**
-     * Test of separarAritmetica method, of class Analizador.
+     * Test of validar method, of class Analizador.
      */
     @Test
     public void testValidar() throws Exception {
@@ -70,6 +72,25 @@ public class AnalizadorTest {
         assertEquals(false, Analizador.validar(exp));
 
     }
-
+    
+    /**
+     * Test of separarAritmetica method, of class Analizador.
+     */
+    @Test
+    public void testSepararAritmetica() throws Exception {
+        String expresion = "(+ 3 2)";
+        String[] campos = Analizador.separarAritmetica(expresion);
+        assertEquals(campos[0], "+");
+        assertEquals(campos[1], "3 2");
+        
+        expresion = "(+ (- 3 1) (* 2 2))";
+        campos = Analizador.separarAritmetica(expresion);
+        assertEquals(campos[0], "+");
+        assertEquals(campos[1], "(- 3 1) (* 2 2)");
+        
+        ArrayList parametros = Analizador.separarParametros(campos[1]);
+        assertEquals(parametros.get(0), "(- 3 1)");
+        assertEquals(parametros.get(1), "(* 2 2)");
+    }
 
 }
