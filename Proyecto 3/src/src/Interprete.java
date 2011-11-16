@@ -57,9 +57,8 @@ public class Interprete {
         
         if (esVariable(exp, amb)) return buscarValor(exp, amb);
         
-        /*
-        if (esDefinicion()) return definir();
-        */
+        if (esDefinicion(exp)) return definir(exp, amb);
+        
         return null;
     }
     
@@ -89,8 +88,18 @@ public class Interprete {
         return a.obtenerValorVariable(exp);  
     }
 
-    private boolean esDefinicion() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public boolean esDefinicion(String exp) {
+        try {
+            if (exp.charAt(0) == '(') {
+                exp = Analizador.strip(exp);
+                return esDefinicion(exp);
+            }
+            ArrayList args = Analizador.separarParametros(exp);
+            if (args.get(0).equals("define")) return true;
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private String definir() {
@@ -117,6 +126,34 @@ public class Interprete {
         }
         if ((i+1) < exp.length() && (exp.charAt(i) == '+' || exp.charAt(i) == '-' || exp.charAt(i) == '*' || exp.charAt(i) == '/') && (exp.charAt(i+1) == ' ' || exp.charAt(i+1) == ')')) return true;
         return false;
+    }
+
+    public String definir(String exp, Ambiente af) throws Exception {
+        if (esAsignacion(exp)) {
+            if (exp.charAt(0) == '(') {
+                exp = Analizador.strip(exp);
+                return definir(exp, af);
+            }
+            ArrayList<String> partes = Analizador.separarParametros(exp);
+            String nombre = (String) partes.get(1);
+            af.agregarVariable(nombre, eval(partes.get(2), af));
+            return eval(partes.get(2), af);
+        }
+        return null;
+    }
+
+    public boolean esAsignacion(String exp) throws Exception {
+        if (exp.charAt(0) == '(') {
+            exp = Analizador.strip(exp);
+            return esAsignacion(exp);
+        }
+        ArrayList partes = Analizador.separarParametros(exp);
+        String nombre = (String) partes.get(1);
+        if (!esAplicacion(nombre) && !esAutoevaluativa(nombre) && partes.size() == 3) {
+            return true;
+        } else {
+            throw new Exception("Asignación mal formada");
+        }    
     }
 
     
