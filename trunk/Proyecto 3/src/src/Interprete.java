@@ -7,6 +7,7 @@ package src;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import lang.Multiplicador;
 import lang.Operador;
 import lang.Sumador;
 
@@ -23,6 +24,7 @@ public class Interprete {
     public Interprete() {
         primitivos = new HashMap<String, Operador>();
         primitivos.put("+", new Sumador());
+        primitivos.put("*", new Multiplicador());
         
         global = new Ambiente();
         
@@ -32,12 +34,24 @@ public class Interprete {
     }
     
     public String eval(String exp, Ambiente amb) throws Exception {
-        //String[] partes = Analizador.separarExpresion(exp);
-        if (esAutoevaluativa()) return exp;
+        if (esAutoevaluativa(exp)) return exp;
+        if (esAplicacion(exp)) {
+            String[] partes = Analizador.separarAritmetica(exp);
+            String operacion = partes[0];
+            ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
+            for (int i = 0; i < parametros.size(); i++) {
+                String actual = parametros.get(i);
+                parametros.remove(i);
+                String nuevo = eval(actual, amb);
+                parametros.add(i, nuevo);
+            }
+            Operador op = primitivos.get(operacion);
+            return Double.toString(op.calcular(parametros));
+        }
+        /*
         if (esVariable()) return buscarValor();
         if (esDefinicion()) return definir();
-        if (esAplicacion()) {
-        }
+        */
         return null;
     }
     
@@ -50,8 +64,13 @@ public class Interprete {
         return false;
     }
 
-    private boolean esAutoevaluativa() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private boolean esAutoevaluativa(String exp) {
+        try {
+            Double.parseDouble(exp);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean esVariable() {
@@ -70,8 +89,13 @@ public class Interprete {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private boolean esAplicacion() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private boolean esAplicacion(String exp) {
+        int i = 0;
+        while (i < exp.length() && exp.charAt(i) == '(') {
+            i++;
+        }
+        if ((i+1) < exp.length() && (exp.charAt(i) == '+' || exp.charAt(i) == '-' || exp.charAt(i) == '*' || exp.charAt(i) == '/') && (exp.charAt(i+1) == ' ' || exp.charAt(i+1) == ')')) return true;
+        return false;
     }
 
     private String aplicar(String string, String string0) {

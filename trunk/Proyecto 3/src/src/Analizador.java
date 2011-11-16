@@ -36,8 +36,45 @@ public class Analizador {
         }
         return correcto;
     }    
+    
+    /**
+     * 
+     * @param exp
+     * @return
+     * @throws Exception 
+     */
     public static ArrayList separarParametros(String exp) throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented");
+        String parametro = "";
+        ArrayList parametros = new ArrayList();
+        for (int i = 0; i < exp.length(); i++) {
+            int inicio = i;
+            if (exp.charAt(i) == '(') {
+                int abiertos = 1;
+                int cerrados = 0;
+                i++;
+                while (cerrados != abiertos && i < exp.length()) {
+                    if (exp.charAt(i) == '(') abiertos++;
+                    if (exp.charAt(i) == ')') cerrados++;
+                    i++;
+                }
+                parametro = exp.substring(inicio, i);
+                parametros.add(parametro);
+            } else if (exp.charAt(i) != ' ') {
+                i++;
+                if (i < exp.length() && exp.charAt(i) == ' ') {
+                    parametro = String.valueOf(exp.charAt(i-1));
+                    parametros.add(parametro);
+                } else {
+                    while (i < exp.length() && exp.charAt(i) != ' ') {
+                        i++;
+                    }
+                    parametro = exp.substring(inicio, i); 
+                    parametros.add(parametro);
+                }
+            }
+        }
+        
+        return parametros;
     }
     
     /**
@@ -50,16 +87,15 @@ public class Analizador {
         String primero = "";
         String segundo = "";
         
-        if (exp.charAt(0) == '(') {
-            primero = String.valueOf(exp.charAt(1));
-            segundo = exp.substring(2, exp.length()-1);
-        } else {
-            primero = String.valueOf(exp.charAt(0)); 
-            segundo = exp.substring(1, exp.length()-1);
+        int i = 0;
+        while (i < exp.length() && exp.charAt(i) == '(') {
+            i++;
         }
+        primero = String.valueOf(exp.charAt(i));
+        segundo = exp.substring(i+1, exp.length()-1);
+
         String[] resultado = {primero.trim(), segundo.trim()};
         return resultado;
-        
     }
     
     public String[] siguiente(String exp) {
