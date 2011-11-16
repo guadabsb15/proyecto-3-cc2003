@@ -67,9 +67,9 @@ public class InterpreteTest {
         result = instance.eval(exp, amb);
         assertEquals(result, "7.0");
         
-        exp = "(+ (+ 3 2) (* 2 4))";
+        exp = "(+ (- (+ 3 2) (* 2 4)) 3)";
         result = instance.eval(exp, amb);
-        assertEquals(result, "13.0");
+        assertEquals(result, "0.0");
 
     }
 

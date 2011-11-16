@@ -7,8 +7,10 @@ package src;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import lang.Divisor;
 import lang.Multiplicador;
 import lang.Operador;
+import lang.Restador;
 import lang.Sumador;
 
 /**
@@ -25,9 +27,10 @@ public class Interprete {
         primitivos = new HashMap<String, Operador>();
         primitivos.put("+", new Sumador());
         primitivos.put("*", new Multiplicador());
+        primitivos.put("-", new Restador());
+        primitivos.put("/", new Divisor());
         
         global = new Ambiente();
-        
     }
     
     public static void main(String[] args) {
