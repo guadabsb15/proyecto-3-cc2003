@@ -25,6 +25,14 @@ public class Ambiente {
         this(null);
     }
     
+    public boolean contieneVariable(String nombre) {
+        if (vars.containsKey(nombre)) {
+            return true;
+        }
+        if (padre != null) return padre.contieneVariable(nombre);
+        return false;
+    }
+    
     public void agregarVariable(String nombre, String val) {
         vars.put(nombre, val);
     }

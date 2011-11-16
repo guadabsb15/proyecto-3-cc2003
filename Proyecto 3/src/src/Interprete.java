@@ -38,21 +38,26 @@ public class Interprete {
     
     public String eval(String exp, Ambiente amb) throws Exception {
         if (esAutoevaluativa(exp)) return exp;
+        
         if (esAplicacion(exp)) {
-            String[] partes = Analizador.separarAritmetica(exp);
-            String operacion = partes[0];
-            ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
-            for (int i = 0; i < parametros.size(); i++) {
-                String actual = parametros.get(i);
-                parametros.remove(i);
-                String nuevo = eval(actual, amb);
-                parametros.add(i, nuevo);
-            }
-            Operador op = primitivos.get(operacion);
-            return Double.toString(op.calcular(parametros));
+            if (esAritmetica(exp)) {
+                String[] partes = Analizador.separarAritmetica(exp);
+                String operacion = partes[0];
+                ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
+                for (int i = 0; i < parametros.size(); i++) {
+                    String actual = parametros.get(i);
+                    parametros.remove(i);
+                    String nuevo = eval(actual, amb);
+                    parametros.add(i, nuevo);
+                }
+                Operador op = primitivos.get(operacion);
+                return Double.toString(op.calcular(parametros));
+            }    
         }
+        
+        if (esVariable(exp, amb)) return buscarValor(exp, amb);
+        
         /*
-        if (esVariable()) return buscarValor();
         if (esDefinicion()) return definir();
         */
         return null;
@@ -76,12 +81,12 @@ public class Interprete {
         }
     }
 
-    private boolean esVariable() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private boolean esVariable(String exp, Ambiente a) {
+         return a.contieneVariable(exp);
     }
 
-    private String buscarValor() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private String buscarValor(String exp, Ambiente a) throws Exception {
+        return a.obtenerValorVariable(exp);  
     }
 
     private boolean esDefinicion() {
@@ -93,12 +98,8 @@ public class Interprete {
     }
 
     private boolean esAplicacion(String exp) {
-        int i = 0;
-        while (i < exp.length() && exp.charAt(i) == '(') {
-            i++;
-        }
-        if ((i+1) < exp.length() && (exp.charAt(i) == '+' || exp.charAt(i) == '-' || exp.charAt(i) == '*' || exp.charAt(i) == '/') && (exp.charAt(i+1) == ' ' || exp.charAt(i+1) == ')')) return true;
-        return false;
+        return esAritmetica(exp);
+        
     }
 
     private String aplicar(String string, String string0) {
@@ -107,6 +108,15 @@ public class Interprete {
 
     private void listaParametros() {
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    private boolean esAritmetica(String exp) {
+        int i = 0;
+        while (i < exp.length() && exp.charAt(i) == '(') {
+            i++;
+        }
+        if ((i+1) < exp.length() && (exp.charAt(i) == '+' || exp.charAt(i) == '-' || exp.charAt(i) == '*' || exp.charAt(i) == '/') && (exp.charAt(i+1) == ' ' || exp.charAt(i+1) == ')')) return true;
+        return false;
     }
 
     
