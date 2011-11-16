@@ -38,19 +38,6 @@ public class InterpreteTest {
     }
 
     /**
-     * Test of main method, of class Interprete.
-     */
-    /*
-    @Test
-    public void testMain() {
-        System.out.println("main");
-        String[] args = null;
-        Interprete.main(args);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }*/
-
-    /**
      * Test of eval method, of class Interprete.
      */
     @Test
@@ -72,8 +59,35 @@ public class InterpreteTest {
         assertEquals(result, "0.0");
 
     }
-
     
+    /**
+     * Test de esDefinicion
+     */
+    @Test
+    public void testEsDefinicion() throws Exception {
+        Interprete instance = new Interprete();
+        String exp = "(define x 3)";
+        assertEquals(true, instance.esDefinicion(exp));
+        
+        exp = "define x 3";
+        assertEquals(true, instance.esDefinicion(exp));
+        assertEquals(true, instance.esAsignacion(exp));
+    }
+    
+    @Test
+    public void definirTest() throws Exception {
+        Interprete instance = new Interprete();
+        Ambiente amb = new Ambiente();
+        
+        instance.definir("(define x 3)", amb);
+        String valor = amb.obtenerValorVariable("x");
+        assertEquals(valor, "3");
+        
+        instance.definir("define y 45", amb);
+        valor = amb.obtenerValorVariable("y");
+        assertEquals(valor, "45");
+    }
+   
     /**
      * Test of aplicar method, of class Interprete
      */

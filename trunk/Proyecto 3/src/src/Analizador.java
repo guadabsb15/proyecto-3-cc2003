@@ -98,6 +98,10 @@ public class Analizador {
         return resultado;
     }
     
+    public static String strip(String exp) {
+        return exp.substring(1, exp.length()-1);
+    }
+    
     public String[] siguiente(String exp) {
         return exp.split("[() ]");
     } 
