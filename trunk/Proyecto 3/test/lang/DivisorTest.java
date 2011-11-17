@@ -49,7 +49,7 @@ public class DivisorTest {
         args.add("1");
         Divisor instance = new Divisor();
         double expResult = 2.0;
-        double result = instance.calcular(args);
+        double result = (Double) instance.calcular(args);
         assertEquals(expResult, result, 0.0);
     }
 }

@@ -49,6 +49,6 @@ public class RestadorTest {
         args.add("8");
         Restador instance = new Restador();
         double expResult = -5.0;
-        double result = instance.calcular(args);
+        double result = (double) instance.calcular(args);
     }
 }

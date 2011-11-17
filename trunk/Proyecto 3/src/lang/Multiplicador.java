@@ -17,7 +17,7 @@ public class Multiplicador implements Operador {
     }
     
     @Override
-    public double calcular(ArrayList<String> args) throws Exception {
+    public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 1;
         try {
             for (int i = 0; i < args.size(); i++) {

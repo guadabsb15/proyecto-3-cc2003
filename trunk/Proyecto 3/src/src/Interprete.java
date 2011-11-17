@@ -6,7 +6,6 @@ package src;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import lang.Divisor;
 import lang.Multiplicador;
 import lang.Operador;
@@ -53,7 +52,7 @@ public class Interprete {
                         parametros.add(i, nuevo);
                     }
                     Operador op = primitivos.get(operacion);
-                    return Double.toString(op.calcular(parametros));
+                    return Double.toString((Double) op.calcular(parametros));
                 }    
             }
         

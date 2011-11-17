@@ -22,7 +22,7 @@ public class Restador implements Operador {
     }
     
     @Override
-    public double calcular(ArrayList<String> args) throws Exception {
+    public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 0;
         try {
             for (int i = args.size()-1; i >= 0; i--) {
