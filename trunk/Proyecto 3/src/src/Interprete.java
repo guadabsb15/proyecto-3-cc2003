@@ -21,7 +21,7 @@ public class Interprete {
     
     private HashMap<String, Operador> primitivos;
     
-    
+     private Ambiente global;
        
     public Interprete() {
         primitivos = new HashMap<String, Operador>();
@@ -30,7 +30,11 @@ public class Interprete {
         primitivos.put("-", new Restador());
         primitivos.put("/", new Divisor());
         
-        //global = new Ambiente();
+        global = new Ambiente();
+    }
+    
+    public String evalGlobal(String exp) throws Exception {
+        return eval(exp, global);
     }
     
     public String eval(String exp, Ambiente amb) throws Exception {
