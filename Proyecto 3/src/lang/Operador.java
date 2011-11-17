@@ -12,6 +12,6 @@ import java.util.ArrayList;
  */
 public interface Operador {
     
-    public double calcular(ArrayList<String> args) throws Exception;
+    public Object calcular(ArrayList<String> args) throws Exception;
     
 }

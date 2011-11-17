@@ -19,7 +19,7 @@ public class Sumador implements Operador {
     }
     
     @Override
-    public double calcular(ArrayList<String> args) throws Exception {
+    public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 0;
         try {
             for (int i = 0; i < args.size(); i++) {
