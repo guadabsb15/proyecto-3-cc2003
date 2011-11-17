@@ -21,6 +21,12 @@ public class Restador implements Operador {
         stack = new Stack<Double>();
     }
     
+    /**
+     * Calcula la resta de los parámetros ingresados
+     * @param args
+     * @return
+     * @throws Exception 
+     */
     @Override
     public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 0;

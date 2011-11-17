@@ -52,6 +52,9 @@
   </Layout>
   <SubComponents>
     <Component class="java.awt.TextArea" name="textArea1">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+      </Properties>
     </Component>
     <Component class="java.awt.TextField" name="textField1">
       <Events>

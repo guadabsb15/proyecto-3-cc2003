@@ -13,9 +13,14 @@ import java.util.ArrayList;
 public class Multiplicador implements Operador {
     
     public Multiplicador() {
-        
     }
     
+    /**
+     * Calcula la multiplicación de los parámetros ingresados
+     * @param args
+     * @return
+     * @throws Exception 
+     */
     @Override
     public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 1;

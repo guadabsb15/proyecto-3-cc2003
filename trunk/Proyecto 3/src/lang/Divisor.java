@@ -20,6 +20,12 @@ public class Divisor implements Operador {
         stack = new Stack<Double>();
     }
     
+    /**
+     * Calcula la división de los parámetros ingresados
+     * @param args
+     * @return
+     * @throws Exception 
+     */
     @Override
     public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 0;
