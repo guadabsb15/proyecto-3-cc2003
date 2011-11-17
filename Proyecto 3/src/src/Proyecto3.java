@@ -20,12 +20,9 @@ public class Proyecto3 extends javax.swing.JFrame {
     
     private Interprete interprete;
     
-    private Ambiente global;
-
     /** Creates new form Proyecto3 */
     public Proyecto3() {
         interprete = new Interprete();
-        global = new Ambiente();
         initComponents();
     }
 
@@ -89,7 +86,7 @@ public class Proyecto3 extends javax.swing.JFrame {
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             textArea1.append("> " + textField1.getText() + "\n");
             try {
-                textArea1.append(interprete.eval(textField1.getText(), global) + "\n");
+                textArea1.append(interprete.evalGlobal(textField1.getText()) + "\n");
                 textField1.setText("");
             } catch (Exception e) {
                 textArea1.append("Error: " + e.getMessage() + "\n");
