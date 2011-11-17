@@ -12,11 +12,8 @@ import java.util.ArrayList;
  */
 public class Analizador {
     
-    public Analizador() {
-    }
-    
     /**
-     * Valida una expresión
+     * Valida una expresión en base al número de paréntesis abiertos y cerrados
      * @param exp
      * @return
      * @throws Exception 
@@ -38,9 +35,9 @@ public class Analizador {
     }    
     
     /**
-     * 
+     * Separa los parámetros de una expresión, en tokens más simples que pueden ser valores u otras operaciones
      * @param exp
-     * @return
+     * @return ArrayList con los tokens separados
      * @throws Exception 
      */
     public static ArrayList separarParametros(String exp) throws Exception {
@@ -98,12 +95,13 @@ public class Analizador {
         return resultado;
     }
     
+    /**
+     * Quita los paréntesis externos de una expresión
+     * @param exp
+     * @return 
+     */
     public static String strip(String exp) {
         return exp.substring(1, exp.length()-1);
     }
-    
-    public String[] siguiente(String exp) {
-        return exp.split("[() ]");
-    } 
    
 }

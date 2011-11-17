@@ -42,6 +42,8 @@ public class Proyecto3 extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        textArea1.setEditable(false);
+
         textField1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 textField1KeyPressed(evt);

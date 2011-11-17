@@ -18,6 +18,12 @@ public class Sumador implements Operador {
         
     }
     
+     /**
+     * Calcula la suma de los parámetros ingresados
+     * @param args
+     * @return
+     * @throws Exception 
+     */
     @Override
     public Object calcular(ArrayList<String> args) throws Exception {
         double resultado = 0;
