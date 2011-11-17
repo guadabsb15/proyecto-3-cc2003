@@ -21,7 +21,7 @@ public class Interprete {
     
     private HashMap<String, Operador> primitivos;
     
-    private Ambiente global;
+    
        
     public Interprete() {
         primitivos = new HashMap<String, Operador>();
@@ -30,36 +30,35 @@ public class Interprete {
         primitivos.put("-", new Restador());
         primitivos.put("/", new Divisor());
         
-        global = new Ambiente();
-    }
-    
-    public static void main(String[] args) {
+        //global = new Ambiente();
     }
     
     public String eval(String exp, Ambiente amb) throws Exception {
-        if (esAutoevaluativa(exp)) return exp;
+        if (Analizador.validar(exp)) {
+            if (esAutoevaluativa(exp)) return exp;
         
-        if (esAplicacion(exp)) {
-            if (esAritmetica(exp)) {
-                String[] partes = Analizador.separarAritmetica(exp);
-                String operacion = partes[0];
-                ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
-                for (int i = 0; i < parametros.size(); i++) {
-                    String actual = parametros.get(i);
-                    parametros.remove(i);
-                    String nuevo = eval(actual, amb);
-                    parametros.add(i, nuevo);
-                }
-                Operador op = primitivos.get(operacion);
-                return Double.toString(op.calcular(parametros));
-            }    
+            if (esAplicacion(exp)) {
+                if (esAritmetica(exp)) {
+                    String[] partes = Analizador.separarAritmetica(exp);
+                    String operacion = partes[0];
+                    ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
+                    for (int i = 0; i < parametros.size(); i++) {
+                        String actual = parametros.get(i);
+                        parametros.remove(i);
+                        String nuevo = eval(actual, amb);
+                        parametros.add(i, nuevo);
+                    }
+                    Operador op = primitivos.get(operacion);
+                    return Double.toString(op.calcular(parametros));
+                }    
+            }
+        
+            if (esVariable(exp, amb)) return buscarValor(exp, amb);
+        
+            if (esDefinicion(exp)) return definir(exp, amb);
         }
+        throw new Exception("Expresión mal formada");
         
-        if (esVariable(exp, amb)) return buscarValor(exp, amb);
-        
-        if (esDefinicion(exp)) return definir(exp, amb);
-        
-        return null;
     }
     
     public String aplicar(Operador op, String args) throws Exception {
