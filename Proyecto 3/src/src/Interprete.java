@@ -7,6 +7,9 @@ package src;
 import java.util.ArrayList;
 import java.util.HashMap;
 import lang.Divisor;
+import lang.Igual;
+import lang.Mayor;
+import lang.Menor;
 import lang.Multiplicador;
 import lang.Operador;
 import lang.Restador;
@@ -23,6 +26,11 @@ public class Interprete {
      */
     private HashMap<String, Operador> primitivos;
     
+     /**
+     * Contiene los procedimientos definidos en el intérprete
+     */
+    private HashMap<String, ArrayList> procedimientos;
+    
     /**
      * Ambiente global que contiene variables y bindings globales
      */
@@ -38,7 +46,11 @@ public class Interprete {
         primitivos.put("*", new Multiplicador());
         primitivos.put("-", new Restador());
         primitivos.put("/", new Divisor());
+        primitivos.put(">", new Mayor());
+        primitivos.put("<", new Menor()); 
+        primitivos.put("=", new Igual()); 
         
+        procedimientos = new HashMap<String, ArrayList>();
         global = new Ambiente();
     }
     
@@ -77,6 +89,20 @@ public class Interprete {
                     }
                     Operador op = primitivos.get(operacion);
                     return Double.toString((Double) op.calcular(parametros));
+                } else if(esPredicado(exp)){
+                    String[] partes = Analizador.separarAritmetica(exp);
+                    String operacion = partes[0];
+                    ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
+                    for (int i = 0; i < parametros.size(); i++) {
+                        String actual = parametros.get(i);
+                        parametros.remove(i);
+                        String nuevo = eval(actual, amb);
+                        parametros.add(i, nuevo);
+                    }
+                    Operador op = primitivos.get(operacion);
+                    return Boolean.toString((Boolean) op.calcular(parametros));
+                }else if(esCompuesta(exp)){
+                    return ("Soy Compuesta");
                 }    
             }
         
@@ -102,6 +128,18 @@ public class Interprete {
         if (primitivos.containsKey(str)) return true;
         return false;
     }
+    
+      /**
+     * Determina si una expresión es una funcion o un procedimiento creado por el usuario
+     * @param str Expresión
+     * @return true si la expresión se identifica como una funcion  
+     */
+    private boolean esProcedimiento(String str) {
+        if (procedimientos.containsKey(str)) return true;
+        return false;
+    }
+    
+  
 
     /**
      * Determina si una expresión es autoevaluativa, el caso base para el procedimiento recursivo eval
@@ -167,7 +205,10 @@ public class Interprete {
      * @return true o false
      */
     private boolean esAplicacion(String exp) {
-        return esAritmetica(exp);
+        boolean temporal=false;
+        if (esAritmetica(exp)||esCompuesta(exp)||esPredicado(exp))
+            temporal =true;
+        return temporal;
     }
 
     private String aplicar(String string, String string0) {
@@ -187,6 +228,35 @@ public class Interprete {
         if ((i+1) < exp.length() && (exp.charAt(i) == '+' || exp.charAt(i) == '-' || exp.charAt(i) == '*' || exp.charAt(i) == '/') && (exp.charAt(i+1) == ' ' || exp.charAt(i+1) == ')')) return true;
         return false;
     }
+    
+    private boolean esPredicado(String exp){
+        int i=0;
+        while (i < exp.length() && exp.charAt(i) == '(') {
+            i++;
+        }
+        if ((i+1) < exp.length() && (exp.charAt(i) == '<' || exp.charAt(i) == '>' || exp.charAt(i) == '=' ) && (exp.charAt(i+1) == ' ' || exp.charAt(i+1) == ')')) return true;
+        return false;
+    }
+    
+    /**
+     * Indica si la expresion es una funcion creada por el usuario
+     * @param exp
+     * @return true o false
+     */
+    private boolean esCompuesta(String exp){
+        
+      
+        int i = 0;
+        while (i < exp.length() && exp.charAt(i) == '(') {
+            i++;
+        }
+        
+        String expresion = exp.substring(i, exp.length());
+        
+        String[] nombre= expresion.split(" ");
+        if (esProcedimiento(nombre[0])) return true;
+        return false;
+    }
 
     /**
      * Define la variable, con el nombre ingresado como parámetro, en el ambiente parámetro
@@ -196,7 +266,39 @@ public class Interprete {
      * @throws Exception 
      */
     public String definir(String exp, Ambiente af) throws Exception {
-        if (esAsignacion(exp)) {
+        
+        if(esDefDeProcedimiento(exp)){
+             if (exp.charAt(0) == '(') {
+                exp = Analizador.strip(exp);
+                return definir(exp, af);
+            }
+            System.out.println("Identificada!");
+            ArrayList<String> partes = Analizador.separarParametros(exp);
+            String encabezado = (String) partes.get(1);
+            
+            encabezado= Analizador.strip(encabezado);
+            ArrayList partesEncabezado = Analizador.separarParametros(encabezado);
+            String nombre =(String) partesEncabezado.get(0); 
+            
+            ArrayList parametros = new ArrayList();
+            ArrayList procedimiento = new ArrayList();
+            ArrayList informacion= new ArrayList();
+            
+            parametros= Analizador.separarParametros(encabezado);
+            parametros.remove(0);
+            
+            procedimiento=Analizador.separarParametros(exp);
+            procedimiento.remove(0);
+            procedimiento.remove(0);
+            
+            informacion.add(parametros);
+            informacion.add(procedimiento);
+            procedimientos.put(nombre, informacion); 
+           
+           // return eval("1", af);// COMPONER ESTO!!!!
+            return nombre;
+        }
+        else if (esAsignacion(exp)) {
             if (exp.charAt(0) == '(') {
                 exp = Analizador.strip(exp);
                 return definir(exp, af);
@@ -224,10 +326,40 @@ public class Interprete {
         String nombre = (String) partes.get(1);
         if (!esAplicacion(nombre) && !esAutoevaluativa(nombre) && partes.size() == 3) {
             return true;
-        } else {
+        } else { 
             throw new Exception("Asignación mal formada");
         }    
     }
 
+    /**
+     * Indica si la expresión es una definicion de un procedimiento
+     * @param exp
+     * @return true o false
+     * @throws Exception 
+     */
+    public boolean esDefDeProcedimiento(String exp) throws Exception{
+        
+        if (exp.charAt(0) == '(') {
+            exp = Analizador.strip(exp);
+            return esDefDeProcedimiento(exp);
+        }
+        
+        ArrayList partes = Analizador.separarParametros(exp); 
+        String encabezado = (String) partes.get(1);
+        
+        if (encabezado.charAt(0)=='('){
+            encabezado= Analizador.strip(encabezado);
+            ArrayList partesEncabezado = Analizador.separarParametros(encabezado);
+            String nombre =(String) partesEncabezado.get(0); 
+       
+            if (!esAplicacion(nombre) && !esAutoevaluativa(nombre) && partes.size() >=2) {
+               return true;
+            }
+            else return false;
+        }
+        else {
+            return false;
+        }    
+    }
     
 }
