@@ -102,7 +102,30 @@ public class Interprete {
                     Operador op = primitivos.get(operacion);
                     return Boolean.toString((Boolean) op.calcular(parametros));
                 }else if(esCompuesta(exp)){
-                    return ("Soy Compuesta");
+                    String[] partes = Analizador.separarProcedimiento(exp);
+                    String funcion = partes[0];
+                    ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
+                    for (int i = 0; i < parametros.size(); i++) {
+                        String actual = parametros.get(i);
+                        parametros.remove(i);
+                        String nuevo = eval(actual, amb);
+                        parametros.add(i, nuevo);
+                         }
+                    ArrayList op = procedimientos.get(funcion);
+                    ArrayList parametrosEsperados= (ArrayList)op.get(0);
+                    ArrayList instrucciones = (ArrayList)op.get(1);
+                    for (int i= 0; i< instrucciones.size(); i++){
+                        String actual = (String)instrucciones.get(i);
+                        for (int j=0; j< parametrosEsperados.size(); j++){
+                            if (actual.indexOf(" "+(String)parametrosEsperados.get(j))!=-1){             
+                                actual= actual.replaceAll(" "+(String)parametrosEsperados.get(j)," "+(String)parametros.get(j));
+                            }
+                        }
+                        instrucciones.remove(i);
+                        String nuevo = eval(actual, amb);
+                        instrucciones.add(i, nuevo);
+                    }
+                    return instrucciones.get(0).toString();// MODIFICAR LO QUE RETORNA
                 }    
             }
         
@@ -272,7 +295,7 @@ public class Interprete {
                 exp = Analizador.strip(exp);
                 return definir(exp, af);
             }
-            System.out.println("Identificada!");
+            //System.out.println("Identificada!");
             ArrayList<String> partes = Analizador.separarParametros(exp);
             String encabezado = (String) partes.get(1);
             
