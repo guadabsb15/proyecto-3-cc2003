@@ -116,13 +116,14 @@ public class Interprete {
                     ArrayList instrucciones = (ArrayList)op.get(1);
                     for (int i= 0; i< instrucciones.size(); i++){
                         String actual = (String)instrucciones.get(i);
+                        String actual1=actual.valueOf(actual);
                         for (int j=0; j< parametrosEsperados.size(); j++){
                             if (actual.indexOf(" "+(String)parametrosEsperados.get(j))!=-1){             
-                                actual= actual.replaceAll(" "+(String)parametrosEsperados.get(j)," "+(String)parametros.get(j));
-                            }
+                                 actual1= actual.replaceAll(" "+(String)parametrosEsperados.get(j)," "+(String)parametros.get(j));
+                            } 
                         }
                         instrucciones.remove(i);
-                        String nuevo = eval(actual, amb);
+                        String nuevo = eval(actual1, amb);
                         instrucciones.add(i, nuevo);
                     }
                     return instrucciones.get(0).toString();// MODIFICAR LO QUE RETORNA
@@ -132,8 +133,15 @@ public class Interprete {
             if (esCondicional(exp)){
                 if (esIf(exp)){
                     String[] partes = Analizador.separarProcedimiento(exp);
-                    ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
-                    return "soy un if";
+                    ArrayList partes2=Analizador.separarParametros(partes[1]);
+                    String predicado = (String)partes2.get(0);
+                    if (eval(predicado, amb).equals("true")){
+                        return (eval ((String)partes2.get(1),amb));
+                    }else{
+                        if(partes2.size()> 2) return (eval ((String)partes2.get(2), amb));
+                    } 
+                   
+                    return "  ";
                 }else if(esCond(exp)){
                     return "soy un cond";
                 }
