@@ -128,7 +128,17 @@ public class Interprete {
                     return instrucciones.get(0).toString();// MODIFICAR LO QUE RETORNA
                 }    
             }
-        
+            
+            if (esCondicional(exp)){
+                if (esIf(exp)){
+                    String[] partes = Analizador.separarProcedimiento(exp);
+                    ArrayList<String> parametros = Analizador.separarParametros(partes[1]);
+                    return "soy un if";
+                }else if(esCond(exp)){
+                    return "soy un cond";
+                }
+            } 
+            
             if (esVariable(exp, amb)) return buscarValor(exp, amb);
         
             if (esDefinicion(exp)) return definir(exp, amb);
@@ -217,7 +227,57 @@ public class Interprete {
             return false;
         }
     }
-
+    
+      /**
+     * Analiza si la expresión es una condicional
+     * @param exp
+     * @return true o false
+     */
+     public boolean esCondicional(String exp) {
+   
+       return (esIf(exp) || esCond(exp));
+    }
+    
+      /**
+     * Analiza si la expresión es un if
+     * @param exp
+     * @return true o false
+     */
+     public boolean esIf(String exp) {
+        try {
+            if (exp.charAt(0) == '(') {
+                exp = Analizador.strip(exp);
+                return esIf(exp);
+            }
+            ArrayList args = Analizador.separarParametros(exp);
+            if (args.get(0).equals("if")) return true;
+            
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Analiza si la expresión es un cond (switch)
+     * @param exp
+     * @return true o false
+     */
+     public boolean esCond(String exp) {
+        try {
+            if (exp.charAt(0) == '(') {
+                exp = Analizador.strip(exp);
+                return esCond(exp);
+            }
+            ArrayList args = Analizador.separarParametros(exp);
+            if (args.get(0).equals("cond")) return true;
+            
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
     private String definir() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
