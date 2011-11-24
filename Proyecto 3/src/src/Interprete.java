@@ -140,7 +140,24 @@ public class Interprete {
                    
                     return "  ";
                 }else if(esCond(exp)){
-                    return "soy un cond";
+                    boolean seguir=true;
+                    String[] partes = Analizador.separarProcedimiento(exp);
+                    ArrayList partes2=Analizador.separarParametros(partes[1]);
+                    int i=0;
+                    while(seguir && i< partes2.size()){
+                       ArrayList<String> partes3= Analizador.separarParametros((String)partes2.get(i));
+                       String condicion = partes3.get(0);
+                      
+                       condicion= Analizador.strip(condicion);
+                       ArrayList<String> partes4= Analizador.separarParametros(condicion); 
+                       String predicado = partes4.get(0); 
+                        if (eval(predicado, amb).equals("true")){
+                            seguir=false;
+                            return (eval ((String)partes4.get(1),amb));
+                        }
+                        i++;
+                    }
+                    return " ";
                 }
             } 
             
