@@ -114,20 +114,17 @@ public class Interprete {
                     ArrayList op = procedimientos.get(funcion);
                     ArrayList parametrosEsperados= (ArrayList)op.get(0);
                     ArrayList instrucciones = (ArrayList)op.get(1);
-                    for (int i= 0; i< instrucciones.size(); i++){
-                        String actual = (String)instrucciones.get(i);
-                        String actual1=actual.valueOf(actual);
-                        for (int j=0; j< parametrosEsperados.size(); j++){
-                            if (actual.indexOf(" "+(String)parametrosEsperados.get(j))!=-1){             
-                                 actual1= actual.replaceAll(" "+(String)parametrosEsperados.get(j)," "+(String)parametros.get(j));
-                            } 
-                        }
-                        instrucciones.remove(i);
-                        String nuevo = eval(actual1, amb);
-                        instrucciones.add(i, nuevo);
-                    }
-                    return instrucciones.get(0).toString();// MODIFICAR LO QUE RETORNA
-                }    
+                            
+                    String actual = (String)instrucciones.get(0);
+                    String actual1= actual.substring(0, actual.length());
+                    for (int j=0; j< parametrosEsperados.size(); j++){
+                         if (actual1.indexOf(" "+(String)parametrosEsperados.get(j))!=-1){ 
+                             actual1= actual1.replaceAll(" "+(String)parametrosEsperados.get(j)," "+(String)parametros.get(j));
+                         } 
+                     }
+                     
+                     return (eval (actual1, amb));
+                    }    
             }
             
             if (esCondicional(exp)){
