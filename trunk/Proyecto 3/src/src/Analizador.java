@@ -95,6 +95,29 @@ public class Analizador {
         return resultado;
     }
     
+     /**
+     * Separa las partes de una llamada a funcion
+     * @param exp
+     * @return ArrayList con las partes separadas
+     */
+    public static String[] separarProcedimiento(String exp) throws Exception {
+        exp = exp.trim();
+        String primero = "";
+        String segundo = "";
+        
+        int i = 0;
+        while (i < exp.length() && exp.charAt(i) == '(') {
+            i++;
+        }
+        exp= exp.substring(i,exp.length());
+        String[] partes= exp.split(" ");
+        primero = String.valueOf(partes[0]);
+        segundo = exp.substring(i+partes[0].length(), exp.length()-1);
+
+        String[] resultado = {primero.trim(), segundo.trim()};
+        return resultado;
+    }
+    
     /**
      * Quita los paréntesis externos de una expresión
      * @param exp
