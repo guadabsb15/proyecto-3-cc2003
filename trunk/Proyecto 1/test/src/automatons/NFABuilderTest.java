@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package src;
+package src.automatons;
 
+import src.Regexer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -15,9 +16,9 @@ import static org.junit.Assert.*;
  *
  * @author asus
  */
-public class Evaluator2Test {
+public class NFABuilderTest {
     
-    public Evaluator2Test() {
+    public NFABuilderTest() {
     }
 
     @BeforeClass
@@ -37,17 +38,15 @@ public class Evaluator2Test {
     }
 
     /**
-     * Test of evaluate method, of class Evaluator2.
+     * Test of build method, of class NFABuilder.
      */
     @Test
-    public void testEvaluate() {
-        Evaluator2 e = new Evaluator2();
-        //e.evaluate("(2 * 3) + 4 * 2");
-        try {
-            e.evaluate("3 + 4 * 2 + 9");
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-
+    public void testBuild() throws Exception {
+        System.out.println("build");
+        String regex = "(a | b )";
+        Regexer regexer = new Regexer("+*|?.", "()", "abc");
+        NFABuilder instance = new NFABuilder(regexer);
+        instance.build(regex);
+        
     }
 }

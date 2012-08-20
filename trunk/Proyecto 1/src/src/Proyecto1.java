@@ -4,11 +4,15 @@
  */
 package src;
 
+import src.automatons.Symbol;
+
 /**
  *
  * @author asus
  */
 public class Proyecto1 {
+    
+    public final static Symbol EMPTY_STR = (new Symbol("ε"));
 
     /**
      * @param args the command line arguments
