@@ -40,7 +40,7 @@ public class EvaluatorTest {
     public void testEvaluate() {
         Evaluator e = new Evaluator();
         //e.evaluate("(2 * 3) + 4 * 2");
-        e.evaluate("1 + (9 - 1) * 2");
+        e.evaluate("1 * (2 * 3)");
         
         
     }
