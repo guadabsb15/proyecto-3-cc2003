@@ -43,7 +43,7 @@ public class NFABuilderTest {
     @Test
     public void testBuild() throws Exception {
         System.out.println("build");
-        String regex = "(a | b )";
+        String regex = "(a | b )*";
         Regexer regexer = new Regexer("+*|?.", "()", "abc");
         NFABuilder instance = new NFABuilder(regexer);
         instance.build(regex);

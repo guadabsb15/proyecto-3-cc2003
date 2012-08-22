@@ -80,7 +80,7 @@ public class AutomatonTest {
         tr.put(new Pair(q3, c), q4.toSet());
         
         try {
-            Automaton instance = new DFA(q0, lang, qs, tr, qfs);
+            Automaton instance = new DFA(lang);
             String testString = "bc";
             System.out.println("Test string: " + testString);
             instance.go(testString);  
@@ -134,7 +134,7 @@ public class AutomatonTest {
         tr.put(new Pair(q3, c), q4.toSet());
         
         try {
-            Automaton instance = new NFA(q0, lang, qs, tr, qfs);
+            Automaton instance = new NFA(lang);
             String testString = "al";
             System.out.println("Test string: " + testString);
             instance.go(testString);   

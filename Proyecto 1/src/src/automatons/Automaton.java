@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import src.Regexer;
 
         
         
@@ -54,27 +55,15 @@ public abstract class Automaton {
     protected Set<State> accepting;
     
     public Automaton(Set<Symbol> syms) {
-        symbols = syms;
+        symbols = new LinkedHashSet();
+        symbols.addAll(syms);
+        symbols.add(Regexer.EMPTY_STR);
         states = new LinkedHashSet();
         transition = new LinkedHashMap();
         accepting = new LinkedHashSet();
     }
     
-    /**
-     * Class constructor
-     */
-    public Automaton(State q0, Set syms, Set qs, Map trs, Set qfs) {
-        initial_state = q0;
-        symbols = syms;
-        states = qs;
-        transition = trs;
-        accepting = qfs;
-        
-        current_states = new LinkedHashSet();
-        current_states.add(initial_state);
-        states.add(initial_state);
-        states.addAll(accepting);
-    }
+
     
     public Set<State> next(Pair<State, Symbol> k) {
         //current_states = transition.get(k);
@@ -101,7 +90,7 @@ public abstract class Automaton {
             }
             current_states = newCurrent;
         } else {
-            throw new Exception("A symbol that does not exist was provided as input");
+            throw new Exception("An unrecognizable symbol for the automaton's alphabet was provided as input");
         }
     }
     
@@ -120,16 +109,44 @@ public abstract class Automaton {
     
     public void addAcceptingState(State s) {
         accepting.add(s);
-        states.add(s);
+        addState(s);
     }
     
     public void changeInitialState(State s) {
         initial_state = s;
+        addState(s);
+    }
+    
+    public void addState(State s) {
         states.add(s);
     }
     
-    public void addTransition(Pair<State, Symbol> p, Set<State> s) {
-        transition.put(p, s);
+    public void addTransition(Pair<State, Symbol> p, State s) throws Exception {
+        if (!states.contains(p.returnFirst())) {
+            throw new Exception("Reference to non-existant state");
+        }
+        if (transition.containsKey(p)) {
+            Set<State> value = transition.get(p);
+            value.add(s);
+            transition.put(p, value);
+        } else {
+
+            transition.put(p, s.toSet());
+        }
+    }
+    
+    public void addTransition(Pair<State, Symbol> p, Set<State> s) throws Exception {
+        if (!states.contains(p.returnFirst())) {
+            throw new Exception("Reference to non-existant state");
+        }
+        if (transition.containsKey(p)) {
+            Set<State> value = transition.get(p);
+            value.addAll(s);
+            transition.put(p, value);
+        } else {
+            transition.put(p, s);
+        }
+        
     }
     
     public void removeAcceptingState(State s) {

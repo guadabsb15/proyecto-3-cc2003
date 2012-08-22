@@ -16,12 +16,10 @@ import java.util.Set;
  */
 public class DFA extends Automaton {
     
-    
-    public DFA(State q0, Set syms, Set qs, Map trs, Set qfs) throws Exception {
-            super(q0, syms, qs, trs, qfs);
-            validate(trs);
+    public DFA(Set<Symbol> syms) {
+        super(syms);
     }
-
+    
     private boolean validate(Map transitions) throws Exception {
         Collection<Set> values = transitions.values();
         Iterator<Set> iter = values.iterator();

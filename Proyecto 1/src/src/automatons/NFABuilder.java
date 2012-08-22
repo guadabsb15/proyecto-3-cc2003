@@ -26,12 +26,14 @@ public class NFABuilder {
     
     private Set symbols;
     
+    private Automaton nfa;
+    
     public NFABuilder(Regexer rgxr) {
         evalStack = new Stack<Automaton>();
         index = 0;
         regexer = rgxr;
         symbols = regexer.symbols();
-        
+        nfa = null;
     }
     
     public void build(String regex) throws Exception {
@@ -144,8 +146,13 @@ public class NFABuilder {
             throw e;
         }
         
+        nfa = evalStack.pop();
+        
     }
     
+    public NFA nfa() {
+        return (NFA) nfa;
+    }
     
     
 }
