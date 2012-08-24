@@ -23,24 +23,34 @@ public class Regexer {
 
     private Tokenizer tokenizer;
     
-    private Set<Symbol> symbols;
+    private Set<Symbol> symbols = new LinkedHashSet();
     
     public final static Symbol EMPTY_STR = (new Symbol("ε"));
     
      /**
      * Symbols used as operators
      */
-    private final String OPERATORS;
+    private String OPERATORS;
    
     /**
      * Symbols used to group expresions
      */
-    private final String GROUPERS;
+    private String GROUPERS = "()";
     
     /**
      * Symbols 
      */
-    private final String OPERANDS;
+    private String OPERANDS;
+    
+    public static String OR = "|";
+    
+    public static String KLEENE = "*";
+    
+    public static String ZERONE = "?";
+    
+    public static String POSCLOSURE = "+";
+    
+    public static String CONCATENATION = "· "; 
    
     /**
      * Tokens of the expression to be evaluated
@@ -58,11 +68,24 @@ public class Regexer {
     private Stack evalStack;
     
     /**
-     * Output queue
+     * Output stack
      */
     private Stack<BinaryTree> queue;
     
     private BinaryTree abstractSyntaxTree;
+    
+    public Regexer() {
+        
+        OPERATORS = KLEENE+OR+POSCLOSURE+ZERONE+CONCATENATION;
+        tokenizer = new Tokenizer();
+        stack = new Stack<Symbol>();
+        evalStack = new Stack<String>();
+        queue = new Stack<BinaryTree>();
+        abstractSyntaxTree = null;
+        
+        
+        
+    }
     
     public Regexer(String operators, String groupers, String operands) {
         OPERATORS = operators;
@@ -75,7 +98,7 @@ public class Regexer {
         queue = new Stack<BinaryTree>();
         abstractSyntaxTree = null;
         
-        symbols = makeSymbolSet();
+
         
     }
     
@@ -112,6 +135,9 @@ public class Regexer {
      * @throws Exception 
      */
     private void shunt() throws Exception {
+        
+        
+        
         for (int i = 0; i < tokens.size(); i++) {
             Symbol actual = new Symbol(tokens.get(i));
             if (isOperand(actual)) {
@@ -155,23 +181,23 @@ public class Regexer {
     
     private void makeTree() {
         if (getArity(stack.peek()) == 1) {
-            if (stack.peek().equals("?")) {
-                BinaryTree b = new BinaryTree(new Symbol("."), queue.pop(), new BinaryTree(EMPTY_STR));
+            if (stack.peek().equals(ZERONE)) {
+                BinaryTree b = new BinaryTree(new Symbol(OR), queue.pop(), new BinaryTree(EMPTY_STR));
                 queue.push(b);
                 stack.pop();
-            } else if (stack.peek().equals("+")) {
+            } else if (stack.peek().equals(POSCLOSURE)) {
                 BinaryTree op = queue.pop();
-                BinaryTree b = new BinaryTree(new Symbol("|"), op, new BinaryTree(new Symbol("*"), op, null));
+                BinaryTree b = new BinaryTree(new Symbol(CONCATENATION), op, new BinaryTree(new Symbol(KLEENE), op, null));
                 queue.push(b);
                 stack.pop();
-            } else if (stack.peek().equals("*")) {
+            } else if (stack.peek().equals(KLEENE)) {
                 BinaryTree op = queue.pop();
                 BinaryTree b = new BinaryTree(stack.pop(), op, null);
                 queue.push(b);
             }
             return;             
        }   else if (getArity(stack.peek()) == 2)  {
-           if ((stack.peek().equals("|"))) {
+           if ((stack.peek().equals(OR))) {
                BinaryTree op2 = queue.pop();
                BinaryTree op1 = queue.pop();
                BinaryTree b = new BinaryTree(stack.pop(), op1, op2);
@@ -187,7 +213,7 @@ public class Regexer {
     }
     
     public int getArity(Object operator) {
-        if (operator.toString().equals("?") || operator.toString().equals("+") || operator.toString().equals("*")) {
+        if (operator.toString().equals(ZERONE) || operator.toString().equals(POSCLOSURE) || operator.toString().equals(KLEENE)) {
             return 1;
         } else {
             return 2;
@@ -203,9 +229,9 @@ public class Regexer {
      * @return 
      */
     public int getPrecedence(Object operator) {
-        if (operator.toString().equals("|")) {
+        if (operator.toString().equals(OR)) {
             return 1;
-        } else if ( operator.toString().equals("+") ){
+        } else if ( operator.toString().equals(POSCLOSURE) ){
             return 2;
         } else {
             return 3;

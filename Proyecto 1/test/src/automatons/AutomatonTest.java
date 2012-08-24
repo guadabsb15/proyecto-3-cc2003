@@ -134,7 +134,7 @@ public class AutomatonTest {
         tr.put(new Pair(q3, c), q4.toSet());
         
         try {
-            Automaton instance = new NFA(lang);
+            Automaton instance = new NFA();
             String testString = "al";
             System.out.println("Test string: " + testString);
             instance.go(testString);   

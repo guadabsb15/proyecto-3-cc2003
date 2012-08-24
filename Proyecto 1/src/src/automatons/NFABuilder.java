@@ -32,11 +32,11 @@ public class NFABuilder {
         evalStack = new Stack<Automaton>();
         index = 0;
         regexer = rgxr;
-        symbols = regexer.symbols();
+        symbols = new LinkedHashSet();
         nfa = null;
     }
     
-    public void build(String regex) throws Exception {
+    public Automaton build(String regex) throws Exception {
         try {
             regexer.evaluate(regex);
             BinaryTree<Symbol> tree = regexer.returnAST();
@@ -46,7 +46,7 @@ public class NFABuilder {
                 Symbol current = (Symbol) iterator.next();
                 
                 if (regexer.isOperand(current)) {
-                    Automaton newAutomaton = new NFA(symbols);
+                    Automaton newAutomaton = new NFA();
                     newAutomaton.changeInitialState(new State(Integer.toString(index)));
                     index++;
                     newAutomaton.addAcceptingState(new State(Integer.toString(index)));
@@ -58,11 +58,13 @@ public class NFABuilder {
                 
                 else if (regexer.isOperator(current)) {
                     
-                    if (current.equals("|")) {
+                    if (current.equals(Regexer.OR)) {
                         Automaton op1 = evalStack.pop();
                         Automaton op2 = evalStack.pop();
                         
-                        NFA newAutomaton = new NFA(symbols);
+                        NFA newAutomaton = new NFA();
+                        newAutomaton.absorb(op1);
+                        newAutomaton.absorb(op2);
                         State newInitial = new State(Integer.toString(index));
                         newAutomaton.changeInitialState(newInitial);
                         index++;
@@ -77,23 +79,26 @@ public class NFABuilder {
                         newAutomaton.addTransition(newKey, fromInitial);
                         
                         Iterator op1Accepting = op1.accepting.iterator();
-                        Pair<State, Symbol> newExit1Key = new Pair<State, Symbol>((State)op1Accepting.next(), regexer.EMPTY_STR);
+                        State s1 = (State)op1Accepting.next();
+                        //newAutomaton.addState(s1);
+                        Pair<State, Symbol> newExit1Key = new Pair<State, Symbol>(s1, regexer.EMPTY_STR);
                         
                         Iterator op2Accepting = op2.accepting.iterator();
-                        Pair<State, Symbol> newExit2Key = new Pair<State, Symbol>((State)op2Accepting.next(), regexer.EMPTY_STR);
-                        newAutomaton.addTransition(newExit1Key, newAccepting.toSet());
-                        newAutomaton.addTransition(newExit2Key, newAccepting.toSet());
+                        State s2 = (State)op2Accepting.next();
+                        //newAutomaton.addState(s2);
+                        Pair<State, Symbol> newExit2Key = new Pair<State, Symbol>(s2, regexer.EMPTY_STR);
+                        newAutomaton.addTransition(newExit1Key, newAccepting);
+                        newAutomaton.addTransition(newExit2Key, newAccepting);
                         
-                        newAutomaton.absorb(op1);
-                        newAutomaton.absorb(op2);
+                        
                         evalStack.push(newAutomaton);
                         
                         
-                    } else if (current.equals("*")) {
+                    } else if (current.equals(Regexer.KLEENE)) {
                         
                         Automaton op1 = evalStack.pop(); 
                         
-                        NFA newAutomaton = new NFA(symbols);
+                        NFA newAutomaton = new NFA();
                         newAutomaton.absorb(op1);
                         
                         State newInitial = new State(Integer.toString(index));
@@ -110,7 +115,9 @@ public class NFABuilder {
                         newAutomaton.addTransition(iniKey, fromStart);              
                         
                         Iterator op1Accepting = op1.accepting.iterator();
-                        Pair<State, Symbol> finKey = new Pair<State, Symbol>((State)op1Accepting.next(), regexer.EMPTY_STR);
+                        State s1 = (State)op1Accepting.next();
+                        newAutomaton.addState(s1);
+                        Pair<State, Symbol> finKey = new Pair<State, Symbol>(s1, regexer.EMPTY_STR);
                         Set<State> toAccepting = new LinkedHashSet<State>();
                         toAccepting.add(newAccepting);
                         toAccepting.add(op1.initial_state());
@@ -118,12 +125,12 @@ public class NFABuilder {
                         
                         evalStack.push(newAutomaton);
                         
-                    } else if (current.equals(".")) {
+                    } else if (current.equals(Regexer.CONCATENATION)) {
                         
                         Automaton op2 = evalStack.pop();
                         Automaton op1 = evalStack.pop();
                         
-                        NFA newAutomaton = new NFA(symbols);
+                        NFA newAutomaton = new NFA();
                         newAutomaton.absorb(op1);
                         newAutomaton.absorb(op2);
                         newAutomaton.changeInitialState(op1.initial_state());  
@@ -147,6 +154,7 @@ public class NFABuilder {
         }
         
         nfa = evalStack.pop();
+        return nfa;
         
     }
     

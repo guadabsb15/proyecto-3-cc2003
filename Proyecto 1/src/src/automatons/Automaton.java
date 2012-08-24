@@ -54,10 +54,7 @@ public abstract class Automaton {
      */
     protected Set<State> accepting;
     
-    public Automaton(Set<Symbol> syms) {
-        symbols = new LinkedHashSet();
-        symbols.addAll(syms);
-        symbols.add(Regexer.EMPTY_STR);
+    public Automaton() {
         states = new LinkedHashSet();
         transition = new LinkedHashMap();
         accepting = new LinkedHashSet();
@@ -130,7 +127,7 @@ public abstract class Automaton {
             value.add(s);
             transition.put(p, value);
         } else {
-
+            //symbols.add(p.returnSecond());
             transition.put(p, s.toSet());
         }
     }
@@ -144,6 +141,7 @@ public abstract class Automaton {
             value.addAll(s);
             transition.put(p, value);
         } else {
+            //.add(p.returnSecond());
             transition.put(p, s);
         }
         
@@ -182,4 +180,6 @@ public abstract class Automaton {
     public Set<Symbol> symbols() {
         return symbols;
     }
+    
+    public abstract boolean simulate(String input);
 }

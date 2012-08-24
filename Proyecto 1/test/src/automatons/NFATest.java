@@ -53,7 +53,7 @@ public class NFATest {
         State s4 = new State("4");
         Set<Symbol> sym = new LinkedHashSet<Symbol>();
         sym.add(new Symbol("a"));
-        NFA instance = new NFA(sym);
+        NFA instance = new NFA();
         instance.addState(s1);
         instance.addState(s2);
         instance.addState(s3);
@@ -101,7 +101,7 @@ public class NFATest {
         
         Set<Symbol> sym = new LinkedHashSet<Symbol>();
         sym.add(new Symbol("a"));
-        NFA instance = new NFA(sym);
+        NFA instance = new NFA();
         instance.addState(s2);
         instance.addState(s3);
         
@@ -110,6 +110,45 @@ public class NFATest {
         expResult.add(s3);
         Set result = instance.eClosure(t);
         assertEquals(expResult, result);
+        
+    }
+    
+    /**
+     * Test of move method, of class NFA.
+     */
+    @Test
+    public void testMove() {
+        System.out.println("move");
+        
+        State s1 = new State("1");
+        State s2 = new State("2");
+        State s3 = new State("3");
+        State s4 = new State("4");
+        Set<Symbol> sym = new LinkedHashSet<Symbol>();
+        sym.add(new Symbol("a"));
+        NFA instance = new NFA();
+        instance.addState(s1);
+        instance.addState(s2);
+        instance.addState(s3);
+        instance.addState(s4);
+        
+        try {
+            instance.addTransition(new Pair<State, Symbol>(s1, new Symbol("a")), s2);
+            instance.addTransition(new Pair<State, Symbol>(s2, new Symbol("a")), s3);
+            
+            Set<State> expResult = new LinkedHashSet<State>();
+            Set<State> T = new LinkedHashSet<State>();
+            T.add(s1);
+            T.add(s2);
+ 
+            expResult.add(s3);
+            expResult.add(s2);
+            Set result = instance.move(T, new Symbol("a"));
+            assertEquals(expResult, result);
+            
+        } catch (Exception e) {
+            
+        }    
         
     }
 }
