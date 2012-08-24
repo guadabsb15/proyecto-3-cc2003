@@ -19,8 +19,8 @@ public class NFA extends Automaton {
     
     //Stack<State> todo = new Stack<State>();
     
-    public NFA(Set<Symbol> syms) {
-        super(syms);
+    public NFA() {
+        super();
     }
     
     @Override
@@ -39,14 +39,9 @@ public class NFA extends Automaton {
         
     }
     
-    public boolean simulate (String input) {
-        
-        return false;
-    }
     
     public Set<State> eClosure(State s) {
         Set<State> set = new LinkedHashSet();
-        //set.addAll(c);
         Set<State> visited = new LinkedHashSet();
         Pair<State, Symbol> key = new Pair<State, Symbol>(s, Regexer.EMPTY_STR);
         Set<State> value = super.transition.get(key);
@@ -86,6 +81,46 @@ public class NFA extends Automaton {
     
 
     
-    //private Set<State> move(Set<State> T, Symbol a)
+    public Set<State> move(Set<State> T, Symbol a) {
+        Iterator iterator = T.iterator();
+        Set<State> result = new LinkedHashSet();
+        
+        while (iterator.hasNext()) {
+            State current = (State) iterator.next();
+            Pair<State, Symbol> key = new Pair<State, Symbol>(current, a);
+            if (super.transition.containsKey(key)) {
+                result.addAll(super.transition.get(key));
+            }
+        }
+        
+        return result;
+        
+    }
+    
+    public boolean simulate(String string) {
+        Set<State> s = eClosure(super.initial_state);
+        Symbol c;
+        
+        while (string.length() >= 1) {
+            
+            if (string.trim().equals("")) {
+                c = Regexer.EMPTY_STR;
+            } else {
+                c = new Symbol(string.charAt(0));
+            }
+            s = eClosure(move(s, c));
+            string = string.substring(1, string.length());
+            
+        }
+        
+        Set<State> intersection = new LinkedHashSet(s);
+        intersection.retainAll(super.accepting);
+        if (!intersection.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+        
+    }
       
 }

@@ -17,7 +17,7 @@ import java.util.Set;
 public class DFA extends Automaton {
     
     public DFA(Set<Symbol> syms) {
-        super(syms);
+        super();
     }
     
     private boolean validate(Map transitions) throws Exception {
@@ -31,6 +31,11 @@ public class DFA extends Automaton {
         }
         return true;
        
+    }
+
+    @Override
+    public boolean simulate(String input) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 
