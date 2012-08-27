@@ -14,9 +14,9 @@ import java.util.Set;
  *
  * @author asus
  */
-public class DFA extends Automaton {
+public class DFA extends Automaton  {
     
-    public DFA(Set<Symbol> syms) {
+    public DFA() {
         super();
     }
     
@@ -36,6 +36,11 @@ public class DFA extends Automaton {
     @Override
     public boolean simulate(String input) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public Automaton toDfa() {
+        return this;
     }
     
 

@@ -79,24 +79,6 @@ public class AutomatonTest {
         tr.put(new Pair(q0, b), q3.toSet());
         tr.put(new Pair(q3, c), q4.toSet());
         
-        try {
-            Automaton instance = new DFA(lang);
-            String testString = "bc";
-            System.out.println("Test string: " + testString);
-            instance.go(testString);  
-            
-            Set s = instance.current_states();
-            Iterator it = s.iterator();
-            System.out.println("The automaton is on the following state(s): ");
-            while (it.hasNext()) {
-                System.out.println(it.next().toString());
-            }
-            System.out.println();
-            
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        
     }
    
     @Test
@@ -132,24 +114,6 @@ public class AutomatonTest {
         tr.put(new Pair(q0, a), states1);
         tr.put(new Pair(q0, b), q3.toSet());
         tr.put(new Pair(q3, c), q4.toSet());
-        
-        try {
-            Automaton instance = new NFA();
-            String testString = "al";
-            System.out.println("Test string: " + testString);
-            instance.go(testString);   
-            
-            Set s = instance.current_states();
-            Iterator it = s.iterator();
-            System.out.println("The automaton is on the following state(s): ");
-            while (it.hasNext()) {
-                System.out.println(it.next().toString());
-            }
-            System.out.println();
-           
-            
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+
     }
 }

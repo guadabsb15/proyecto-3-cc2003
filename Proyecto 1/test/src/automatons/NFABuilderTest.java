@@ -46,9 +46,24 @@ public class NFABuilderTest {
         String regex = "(a | b )*";
         Regexer regexer = new Regexer();
         NFABuilder instance = new NFABuilder(regexer);
-        instance.build(regex);
+        Automaton nfa = instance.build(regex);
+        nfa.printTable("nfa.txt");
         
     }
+    
+     @Test
+    public void testToDfa() throws Exception {
+        System.out.println("simulate");
+        
+        String regex = "(a | b )";
+        Regexer regexer = new Regexer();
+        NFABuilder instance = new NFABuilder(regexer);
+        Automaton nfa = instance.build(regex);
+        
+        Automaton dfa = nfa.toDfa();
+        dfa.printTable("dfa.txt");
+        
+     }
     
     /**
      * Test of build method, of class NFABuilder.
@@ -56,13 +71,103 @@ public class NFABuilderTest {
     @Test
     public void testSimulate() throws Exception {
         System.out.println("simulate");
-        String regex = "a·b·(a | b )";
+        
+        String regex = "(a | b )?";
         Regexer regexer = new Regexer();
         NFABuilder instance = new NFABuilder(regexer);
         Automaton nfa = instance.build(regex);
-        boolean result = nfa.simulate("aba");
+        boolean result = nfa.simulate("");
         boolean expResult = true;
         assertEquals(result, expResult);
         
+        regex = "(a | b )?";
+        nfa = instance.build(regex);
+        result = nfa.simulate("");
+        assertEquals(result, expResult);
+        
+        regex = "(a | b )?";
+        nfa = instance.build(regex);
+        result = nfa.simulate("");
+        assertEquals(result, expResult);
+        
+        regex = "(a | b )?";
+        nfa = instance.build(regex);
+        result = nfa.simulate("ab");
+        assertEquals(result, false);
+        
+        regex = "(a | b )*";
+        nfa = instance.build(regex);
+        result = nfa.simulate("");
+        assertEquals(result, expResult);
+        
+        regex = "(a | b )*";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abababa");
+        assertEquals(result, expResult);
+        
+        regex = "b *";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abababa");
+        assertEquals(result, false);
+        
+        regex = "b *";
+        nfa = instance.build(regex);
+        result = nfa.simulate("");
+        assertEquals(result, true);
+        
+        regex = "b*";
+        nfa = instance.build(regex);
+        result = nfa.simulate("bbb");
+        assertEquals(result, true);
+        
+        regex = "b *";
+        nfa = instance.build(regex);
+        result = nfa.simulate("bbba");
+        assertEquals(result, false);
+        
+        regex = "(a | b )+";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abababa");
+        assertEquals(result, expResult);
+        
+        regex = "(a | b )+";
+        nfa = instance.build(regex);
+        result = nfa.simulate("");
+        assertEquals(result, false);
+        
+        regex = "(a · b )+";
+        nfa = instance.build(regex);
+        result = nfa.simulate("ab");
+        assertEquals(result, true);
+        
+        regex = "a·b·(a | b )*";
+        nfa = instance.build(regex);
+        result = nfa.simulate("aba");
+        assertEquals(result, true);
+        
+        regex = "a·b·(a | b )*·b";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abab");
+        assertEquals(result, true);
+        
+        regex = "a·b·(a | b )*·b";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abbb");
+        assertEquals(result, true);
+        
+        regex = "a·b·(a | b )*·b";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abaaaabaabbb");
+        assertEquals(result, true);
+        
+        regex = "a·b·c·d";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abcd");
+        assertEquals(result, true);
+        
+        regex = "a·b·c·d";
+        nfa = instance.build(regex);
+        result = nfa.simulate("abdc");
+        assertEquals(result, false);
     }
 }

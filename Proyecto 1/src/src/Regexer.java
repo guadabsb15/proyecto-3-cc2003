@@ -50,7 +50,7 @@ public class Regexer {
     
     public static String POSCLOSURE = "+";
     
-    public static String CONCATENATION = "· "; 
+    public static String CONCATENATION = "·"; 
    
     /**
      * Tokens of the expression to be evaluated
@@ -232,9 +232,13 @@ public class Regexer {
         if (operator.toString().equals(OR)) {
             return 1;
         } else if ( operator.toString().equals(POSCLOSURE) ){
-            return 2;
-        } else {
+            return 4;
+        } else if (operator.toString().equals(CONCATENATION)) {
             return 3;
+        } else if (operator.toString().equals(ZERONE)) {
+            return 4;
+        } else {
+            return 5;
         }
             
     }
