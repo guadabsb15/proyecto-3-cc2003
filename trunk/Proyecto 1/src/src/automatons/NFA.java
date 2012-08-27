@@ -5,6 +5,7 @@
 package src.automatons;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -97,6 +98,7 @@ public class NFA extends Automaton {
         
     }
     
+    @Override
     public boolean simulate(String string) {
         Set<State> s = eClosure(super.initial_state);
         Symbol c;
@@ -121,6 +123,54 @@ public class NFA extends Automaton {
             return false;
         }
         
+    }
+    
+
+    @Override
+    public Automaton toDfa() {
+        Automaton dfa = new DFA();
+        Map<Pair<State, Symbol>, Set<State>> transitions = new LinkedHashMap();
+        
+        Stack<Set<State>> unmarked = new Stack<Set<State>>();
+        unmarked.push(eClosure(super.initial_state));
+        
+        State initial = new State(eClosure(super.initial_state));
+        dfa.changeInitialState(initial);
+        
+        Set<State> dStates = new LinkedHashSet<State>();
+        dStates.add(initial);
+
+        
+        while (!unmarked.isEmpty()) {
+            Iterator syms = super.symbols.iterator();
+            Set<State> T = unmarked.pop();
+            while (syms.hasNext()) {
+                boolean accepting = false;
+                Symbol a = (Symbol) syms.next();
+                
+                State tState = new State(T);
+                Set<State> U = eClosure(move(T, a));
+                if (U.size() != 0) {
+                    State uState = new State(U);
+                    boolean added = dStates.add(uState);
+                    if (added) {
+                        unmarked.push(uState.set());
+                    }
+                    Iterator it = U.iterator();
+                    while (it.hasNext()) {
+                        if (super.accepting().contains(it.next())) accepting = true;
+                    }
+                    if (accepting) dfa.addAcceptingState(uState);
+                    transitions.put(new Pair<State, Symbol>(tState, a), uState.toSet());
+
+                }
+                         
+            }
+        }
+        
+        dfa.absorbStates(dStates);
+        dfa.absorbTransitions(transitions);
+        return dfa;
     }
       
 }

@@ -44,11 +44,18 @@ public class RegexerTest {
      */
     @Test
     public void testEvaluate() {
-        Regexer e = new Regexer("+*|?.", "()", "123");
+        Regexer e = new Regexer();
         //e.evaluate("(2 * 3) + 4 * 2");
         try {
             e.evaluate("(1 | 2 + | 3) * ");
             BTPostOrderIterator it = new BTPostOrderIterator(e.returnAST());
+            while (it.hasNext()) {
+                System.out.println(it.next());
+            }
+            
+            System.out.println("------------------------");
+            e.evaluate("(a | b )·(b·a)*·a");
+            it = new BTPostOrderIterator(e.returnAST());
             while (it.hasNext()) {
                 System.out.println(it.next());
             }
@@ -65,7 +72,7 @@ public class RegexerTest {
      */
     @Test
     public void testMakeSymbolSet() {
-        Regexer e = new Regexer("+*|?.", "()", "abc");
+        Regexer e = new Regexer();
         try {
             e.evaluate("(a | b + | c) * ");
             Set s = e.symbols();

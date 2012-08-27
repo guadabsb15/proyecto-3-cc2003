@@ -17,6 +17,8 @@ public class State {
     
     private int type;
     
+    private Set<State> set = null;
+    
      /**
      * Represents an initial state
      */
@@ -34,7 +36,11 @@ public class State {
     
     public State(String n) {
         id = n;
-        this.type = type;
+
+    }
+    
+    public State(Set<State> s) {
+        set = s;
     }
     
     public String id() {
@@ -45,6 +51,9 @@ public class State {
         return type;
     }
     
+    public Set<State> set() {
+        return set;
+    }
     
     public LinkedHashSet<State> toSet() {
         LinkedHashSet set = new LinkedHashSet();
@@ -56,7 +65,12 @@ public class State {
     public boolean equals(Object o) {
         if (o.getClass().equals(this.getClass())) {
             State other = (State) o;
-            return other.id().equals(id) && other.type() == type;
+            if (set == null) {
+                return other.id().equals(id) && other.type() == type;
+            } else {
+                return other.set().equals(set);
+            }
+            
         }
         return false;
     }

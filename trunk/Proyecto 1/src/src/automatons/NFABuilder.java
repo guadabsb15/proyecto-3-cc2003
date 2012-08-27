@@ -32,7 +32,7 @@ public class NFABuilder {
         evalStack = new Stack<Automaton>();
         index = 0;
         regexer = rgxr;
-        symbols = new LinkedHashSet();
+        symbols = rgxr.symbols();
         nfa = null;
     }
     
@@ -154,6 +154,7 @@ public class NFABuilder {
         }
         
         nfa = evalStack.pop();
+        nfa.setSymbols(symbols);
         return nfa;
         
     }
