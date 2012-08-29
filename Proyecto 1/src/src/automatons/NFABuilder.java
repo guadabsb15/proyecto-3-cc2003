@@ -24,7 +24,7 @@ public class NFABuilder {
     
     private int index;
     
-    private Set symbols;
+    private Set<Symbol> symbols;
     
     private Automaton nfa;
     

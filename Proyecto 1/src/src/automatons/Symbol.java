@@ -12,11 +12,7 @@ public class Symbol {
     
     private char id;
     
-    public final static int OPERATOR = 0;
-    
-    public final static int GROUPER = 1;
-    
-    public final static int OPERAND = 2;
+    private State associated;
     
     private int type;
     
@@ -49,6 +45,15 @@ public class Symbol {
     public void setType(int t) {
         type = t;
     }
+    
+    public void setState(State s) {
+        associated = s;
+    }
+    
+    public State associated() {
+        return associated;
+    }
+
     
     @Override
     public String toString() {

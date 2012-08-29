@@ -13,7 +13,7 @@ import java.util.Stack;
  *
  * @author asus
  */
-public class BTPostOrderIterator implements Iterator {
+public class BTPostOrderIterator<E> implements Iterator {
     protected BinaryTree root; // root of traversed subtree
     protected Queue<BinaryTree> todo; // stack of nodes
     
@@ -36,6 +36,11 @@ public class BTPostOrderIterator implements Iterator {
     {
         BinaryTree current = todo.poll();
         return current.value();
+    }
+    
+    public BinaryTree<E> nextNode() {
+        BinaryTree<E> current = todo.poll();
+        return current;
     }
 
     protected void enqueuePostorder(BinaryTree current)

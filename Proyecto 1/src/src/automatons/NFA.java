@@ -35,12 +35,9 @@ public class NFA extends Automaton {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-            
-        }
-        
+        }  
     }
-    
-    
+       
     public Set<State> eClosure(State s) {
         Set<State> set = new LinkedHashSet();
         Set<State> visited = new LinkedHashSet();
