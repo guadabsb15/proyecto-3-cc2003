@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import src.Regexer;
 
 /**
  *
@@ -35,12 +36,41 @@ public class DFA extends Automaton  {
 
     @Override
     public boolean simulate(String input) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        State s = super.initial_state;
+        Symbol c;
+        
+        while (input.length() >= 1) {
+            
+            if (input.trim().equals("")) {
+                c = Regexer.EMPTY_STR;
+            } else {
+                c = new Symbol(input.charAt(0));
+            }
+            
+            if (move(s, c) != null) s = move(s, c);
+            input = input.substring(1, input.length());
+            
+        }
+        
+        if (super.accepting.contains(s)) return true;
+        return false;
     }
     
     @Override
     public Automaton toDfa() {
         return this;
+    }
+
+    private State move(State s, Symbol c) {
+        Pair<State, Symbol> key = new Pair<State, Symbol>(s, c);
+        Set<State> next = super.transition.get(key);
+        
+        if (next != null) {
+            Iterator it = next.iterator();
+            return (State) it.next();  
+        }
+        return null;
+        
     }
     
 

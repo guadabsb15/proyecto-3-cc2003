@@ -23,9 +23,11 @@ public class Regexer {
 
     private Tokenizer tokenizer;
     
-    private Set<Symbol> symbols = new LinkedHashSet();
+    private Set<Symbol> symbols;
     
-    public final static Symbol EMPTY_STR = (new Symbol("ε"));
+    public final static Symbol EMPTY_STR = new Symbol("ε");
+    
+    public final static Symbol EXTENSION = new Symbol("#");
     
      /**
      * Symbols used as operators
@@ -97,9 +99,6 @@ public class Regexer {
         evalStack = new Stack<String>();
         queue = new Stack<BinaryTree>();
         abstractSyntaxTree = null;
-        
-
-        
     }
     
     /**
@@ -120,11 +119,16 @@ public class Regexer {
      * @return 
      */
     public BinaryTree<Symbol> evaluate(String expression) throws Exception {
+        symbols = new LinkedHashSet();
         getTokens(expression);     
         shunt();   
         return abstractSyntaxTree;
     }
     
+    /**
+     * 
+     * @param expr 
+     */
     private void getTokens(String expr) {
         tokens = tokenizer.returnTokens(expr, OPERATORS + GROUPERS);
     }
@@ -135,13 +139,10 @@ public class Regexer {
      * @throws Exception 
      */
     private void shunt() throws Exception {
-        
-        
-        
         for (int i = 0; i < tokens.size(); i++) {
             Symbol actual = new Symbol(tokens.get(i));
             if (isOperand(actual)) {
-                actual.setType(Symbol.OPERAND);
+               
                 symbols.add(actual);
                 queue.push(new BinaryTree(actual));
             }
@@ -179,6 +180,9 @@ public class Regexer {
             
     }
     
+    /**
+     * 
+     */
     private void makeTree() {
         if (getArity(stack.peek()) == 1) {
             if (stack.peek().equals(ZERONE)) {
@@ -212,6 +216,11 @@ public class Regexer {
         }  
     }
     
+    /**
+     * 
+     * @param operator
+     * @return 
+     */
     public int getArity(Object operator) {
         if (operator.toString().equals(ZERONE) || operator.toString().equals(POSCLOSURE) || operator.toString().equals(KLEENE)) {
             return 1;
@@ -219,8 +228,6 @@ public class Regexer {
             return 2;
         }
     }
-    
-   
     
     /**
      * Returns the precedence of an operator, as an integer. The lowest precedence
@@ -311,14 +318,17 @@ public class Regexer {
         return s.toString().equals(")");
     }
     
+    /**
+     * 
+     * @param s
+     * @return 
+     */
     public boolean isOperand(Symbol s) {
         //return s.type() == Symbol.OPERAND;
         return !isOperator(s) && !isLeftParentheses(s) && !isRightParentheses(s);
         
     }
 
-      
-    
     /**
      * Returns the value of a token
      * @param s
@@ -346,21 +356,21 @@ public class Regexer {
         ops = tokenizer.returnTokens(OPERATORS, OPERATORS);
         for (int i = 0; i < ops.size(); i++) {
             String current = ops.get(i);
-            set.add(new Symbol(current, Symbol.OPERATOR));
+            set.add(new Symbol(current));
         }
         
         ArrayList<String> ope = new ArrayList();
         ope = tokenizer.returnTokens(OPERANDS, OPERANDS);
         for (int i = 0; i < ope.size(); i++) {
             String current = ope.get(i);
-            set.add(new Symbol(current, Symbol.OPERAND));
+            set.add(new Symbol(current));
         }
         
         ArrayList<String> gro = new ArrayList();
         gro = tokenizer.returnTokens(GROUPERS, GROUPERS);
         for (int i = 0; i < gro.size(); i++) {
             String current = gro.get(i);
-            set.add(new Symbol(current, Symbol.GROUPER));
+            set.add(new Symbol(current));
         }
         
         return set;

@@ -62,7 +62,7 @@ public class BinaryTree<E> {
     // post: re-parents this node to parent reference, or null
     {
         if (!isEmpty()) {
-        parent = newParent;
+            parent = newParent;
         }
     }
 
