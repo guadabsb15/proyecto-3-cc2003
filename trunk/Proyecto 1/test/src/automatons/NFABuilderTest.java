@@ -78,6 +78,17 @@ public class NFABuilderTest {
         
         assertEquals(result, true);
         
+        regex = "";
+        nfa = instance.build(regex);
+        result = nfa.simulate("a");
+        assertEquals(result, false);
+        
+        regex = "";
+        nfa = instance.build(regex);
+        result = nfa.simulate("");
+        assertEquals(result, true);
+        
+        
         regex = "a|ε";
         nfa = instance.build(regex);
         result = nfa.simulate("a");
@@ -176,6 +187,7 @@ public class NFABuilderTest {
         regex = "ab(a | b )*b";
         nfa = instance.build(regex);
         result = nfa.simulate("abaaaabaabbb");
+        nfa.writeFile("nfa.txt");
         assertEquals(result, true);
         
         regex = "abcd";

@@ -15,25 +15,45 @@ import struct.BTPostOrderIterator;
 import struct.BinaryTree;
 
 /**
- *
+ * Builds non-deterministic finite automata using the direct construction method
  * @author asus
  */
 public class DFABuilder {
     
+    /**
+     * Regular expression analyzer
+     */
     private Regexer regexer;
     
+    /**
+     * Index to identifiy each new state
+     */
     private int index;
     
+    /**
+     * Set of symbols of the automata
+     */
     private Set symbols;
     
-    private Automaton nfa;
-    
+    /**
+     * Map that holds the computed follopos
+     */
     private Map<String, Set<State>> followpos;
     
+    /**
+     * Holds the labels associated to each symbol
+     */
     private Map<Symbol, Set<State>> table;
     
+    /**
+     * Label for the accepting position
+     */
     private State acceptingPos;
     
+    /**
+     * Class constructor
+     * @param rgxr 
+     */
     public DFABuilder(Regexer rgxr) {
         index = 1;
         regexer = rgxr;
@@ -43,6 +63,12 @@ public class DFABuilder {
         symbols = null;
     }
     
+    /**
+     * Builds the automaton for the regular expression introduced as input
+     * @param regex
+     * @return
+     * @throws Exception 
+     */
     public Automaton build(String regex) throws Exception {
         index = 1;
         followpos = new LinkedHashMap<String, Set<State>>();
@@ -66,6 +92,10 @@ public class DFABuilder {
         }    
     }
 
+    /**
+     * Labels the leaves with a position
+     * @param tree 
+     */
     public void label(BinaryTree<Symbol> tree ) {
         
         if ((tree.left().value() == null) && (tree.right().value() == null)) {
@@ -102,11 +132,21 @@ public class DFABuilder {
         
     }
     
+    /**
+     * Returns whether a node is a leaf
+     * @param node
+     * @return 
+     */
     public boolean isLeaf(BinaryTree<Symbol> node) {
         if ((node.left().value() == null) && (node.right().value() == null)) return true;
         return false;
     }
     
+    /**
+     * Nullable function
+     * @param node
+     * @return 
+     */
     public boolean nullable(BinaryTree<Symbol> node) {
         if (isLeaf(node) && node.value().equals(Regexer.EMPTY_STR)) {
             return true;
@@ -123,6 +163,11 @@ public class DFABuilder {
         }
     }
     
+    /**
+     * Firstpos function
+     * @param node
+     * @return 
+     */
     public Set<State> firstpos(BinaryTree<Symbol> node) {
         Set<State> result = new LinkedHashSet();
         if (isLeaf(node) && node.value().equals(Regexer.EMPTY_STR)) {
@@ -151,6 +196,11 @@ public class DFABuilder {
         }
     }
     
+    /**
+     * Lastpos function
+     * @param node
+     * @return 
+     */
     public Set<State> lastpos(BinaryTree<Symbol> node) {
         Set<State> result = new LinkedHashSet();
         if (isLeaf(node) && node.value().equals(Regexer.EMPTY_STR)) {
@@ -179,6 +229,10 @@ public class DFABuilder {
         }
     }
     
+    /**
+     * Followpos function
+     * @param node 
+     */
     public void followpos(BinaryTree<Symbol> node) {
         if (isLeaf(node)) return;
         
@@ -219,12 +273,21 @@ public class DFABuilder {
         }
     }
     
+    /**
+     * Computes the followpos function for a regular expression's tree
+     * @param node 
+     */
     public void computeFollowpos(BinaryTree<Symbol> node) {
         followpos(node);
         if (node.left().value() != null) computeFollowpos(node.left());
         if (node.right().value() != null) computeFollowpos(node.right());
     }
 
+    /**
+     * Builds the automaton applying the direct construction algorithm
+     * @param root
+     * @return 
+     */
     public Automaton construct(BinaryTree<Symbol> root) {
         Set<State> dStates = new LinkedHashSet();
         Map<Pair<State, Symbol>, Set<State>> transitions = new LinkedHashMap();
