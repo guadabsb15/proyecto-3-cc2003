@@ -4,6 +4,8 @@
  */
 package src;
 
+import src.automatons.DFABuilder;
+import src.automatons.NFABuilder;
 import src.automatons.Symbol;
 
 /**
@@ -13,6 +15,13 @@ import src.automatons.Symbol;
 public class Proyecto1 {
     
     public final static Symbol EMPTY_STR = (new Symbol("ε"));
+    
+    private NFABuilder nfabuilder;
+    
+    private DFABuilder dfabuilder;
+    
+    private Regexer regexer;
+    
 
     /**
      * @param args the command line arguments

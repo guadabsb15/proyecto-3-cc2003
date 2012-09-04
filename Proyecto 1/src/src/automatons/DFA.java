@@ -6,6 +6,7 @@ package src.automatons;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,8 @@ import src.Regexer;
  * @author asus
  */
 public class DFA extends Automaton  {
+    
+    private State deadState = new State("dead");
     
     public DFA() {
         super();
@@ -36,6 +39,8 @@ public class DFA extends Automaton  {
 
     @Override
     public boolean simulate(String input) {
+        long init = System.nanoTime();
+        input = input.replace(" ", "");
         State s = super.initial_state;
         Symbol c;
         
@@ -47,12 +52,23 @@ public class DFA extends Automaton  {
                 c = new Symbol(input.charAt(0));
             }
             
-            if (move(s, c) != null) s = move(s, c);
+            if (c.equals((Regexer.EMPTY_STR))) {
+            }
+            else if (move(s, c) != null) {
+                s = move(s, c);
+            } else {
+                s = deadState;
+            }
             input = input.substring(1, input.length());
             
         }
         
-        if (super.accepting.contains(s)) return true;
+        if (super.accepting.contains(s)) {
+            System.out.println((System.nanoTime()-init));
+            return true;
+        }
+
+        System.out.println((System.nanoTime()-init));
         return false;
     }
     
@@ -73,7 +89,50 @@ public class DFA extends Automaton  {
         
     }
     
-
+    @Override
+    public Automaton minimize() {
+        
+        Set<Set<State>> partitions = new LinkedHashSet();
+        
+        Set<State> initial = states;
+        initial.removeAll(accepting);
+        partitions.add(initial);
+        partitions.add(accepting);
+        
+        Set<Set<State>> newPartition = new LinkedHashSet();
+        
+        while (!partitions.equals(newPartition)) {
+            
+            Map<State, Set<State>> table = new LinkedHashMap();
+            Iterator parts = partitions.iterator();
+            while (parts.hasNext()) {
+                Set<State> currentValue = (Set<State>) parts.next();
+                Iterator keys = currentValue.iterator();
+                while (keys.hasNext()) {
+                    table.put(((State) keys.next()), currentValue);
+                }
+            }
+            
+            newPartition = partitions;
+            
+            parts = partitions.iterator();
+            
+            
+            
+            while (parts.hasNext()) {
+                Set<State> G = (Set<State>) parts.next();
+                
+                Iterator subgroupStates = G.iterator();
+                while (subgroupStates.hasNext()) {
+                    State currentState = (State) subgroupStates.next();
+                }
+                
+            }  
+        }
+        
+        
+        return this;
+    }
     
     
 }

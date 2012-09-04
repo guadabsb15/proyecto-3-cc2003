@@ -6,7 +6,9 @@ package src.automatons;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,6 +54,7 @@ public abstract class Automaton {
         states = new LinkedHashSet();
         transition = new LinkedHashMap();
         accepting = new LinkedHashSet();
+        symbols = new LinkedHashSet();
     }
     
 
@@ -113,7 +116,6 @@ public abstract class Automaton {
             value.addAll(s);
             transition.put(p, value);
         } else {
-            //.add(p.returnSecond());
             transition.put(p, s);
         }
         
@@ -149,59 +151,68 @@ public abstract class Automaton {
         return symbols;
     }
     
-    public void printTable(String filename) throws Exception {
-        
-        
-        File file = new File(filename);
-        
+    public void writeFile(String filename) throws Exception {
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+        new FileOutputStream(filename), "UTF-8"));
         try {
-            BufferedWriter output = new BufferedWriter(new FileWriter(file));
+            out.write("ESTADOS = {");
+            Iterator sts = states.iterator();
+            while (sts.hasNext()) {
+                printState((State) sts.next(), out);
+                if (sts.hasNext()) out.write(", ");
+            }
+            out.write("}");
+            out.newLine();
             
+            out.write("SÍMBOLOS = {");
+            Iterator sym = symbols.iterator();
+            while (sym.hasNext()) {
+                Symbol current = (Symbol) sym.next();
+                out.write(current.toString());
+                if (sym.hasNext()) out.write(", ");
+            }
+            out.write("}");
+            out.newLine();
             
-            output.write("Initial: ");
-            output.newLine();
-            printState(initial_state, output);
+            out.write("INICIO = {");
+            printState(initial_state, out);
+            out.write("}");
+            out.newLine();
             
-            output.write("Accepting: ");
-            output.newLine();
+            out.write("ACEPTACIÓN = {");
             Iterator acc = accepting.iterator();
             while (acc.hasNext()) {
-                State current = (State)acc.next();
-                printState(current, output);
+                State current = (State) acc.next();
+                printState(current, out);
+                if (acc.hasNext()) out.write(", ");
             }
+            out.write("}");
+            out.newLine();
             
-            output.write("States:  ");
-            output.newLine();
-            Iterator sta = states.iterator();
-            while (sta.hasNext()) {
-                State current = (State)sta.next();
-                printState(current, output);
-            }
+            out.write("TRANSICIÓN = {");
+            printTransitions(out);     
+            out.close();
             
-            output.write("Transitions:  ");
-            output.newLine();
-            printTransitions(output);
-            
-            
-            output.close();
-        } catch (Exception e) {
-            throw e;
+        } finally {
+            out.close();
         }
-        
     }
     
-    private void printState(State s, BufferedWriter w) throws Exception {
+    public void addSymbol(Symbol s) {
+        symbols.add(s);
+    }
+    
+    private void printState(State s, Writer w) throws Exception {
         if (s.set() != null) {
             Iterator iterator = s.set().iterator();
-            w.write("          -");
             while (iterator.hasNext()) {
                 State current = (State)iterator.next();
-                w.write(current.id() + ", ");
+                w.write(current.id());
+                if (iterator.hasNext()) w.write("-"); 
             }
-            w.newLine();
+            //w.newLine();
         } else {
-            w.write("          -" +s.id() + "\n");
-            w.newLine();
+            w.write(s.id());
         }
         
     }
@@ -210,24 +221,33 @@ public abstract class Automaton {
         Set<Pair<State, Symbol>> keys = transition.keySet();
         Iterator k = keys.iterator();
         while (k.hasNext()) {
-            w.write("          -State: ");
+            w.write("(");
             Pair<State, Symbol> current = (Pair<State, Symbol>) k.next();
             printState(current.returnFirst(), w);
-            w.write(" Symbol: " + current.returnSecond().toString() + "---> ");
+            w.write(", ");
+            w.write(current.returnSecond().toString() + ", (");
             
             Set<State> value = transition.get(current);
             Iterator vals = value.iterator();
             while (vals.hasNext()) {
                 printState((State) vals.next(), w);
+                if (vals.hasNext()) w.write(", ");
             }
-            w.newLine();
-            w.write("------------------------------------");
-            w.newLine();
+            w.write("))");
+            
+            if (k.hasNext()) w.write(", ");
         }
+        w.write("}");
         
+    }
+    
+    public void removeKey(Pair<State, Symbol> k) {
+        transition.remove(k);
     }
     
     public abstract Automaton toDfa();
     
     public abstract boolean simulate(String input);
+    
+    public abstract Automaton minimize();
 }

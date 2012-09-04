@@ -120,6 +120,9 @@ public class Regexer {
      */
     public BinaryTree<Symbol> evaluate(String expression) throws Exception {
         symbols = new LinkedHashSet();
+        expression = expression.trim();
+        expression = expression.replaceAll(" ", "");
+        expression = insertCats(expression);
         getTokens(expression);     
         shunt();   
         return abstractSyntaxTree;
@@ -191,7 +194,8 @@ public class Regexer {
                 stack.pop();
             } else if (stack.peek().equals(POSCLOSURE)) {
                 BinaryTree op = queue.pop();
-                BinaryTree b = new BinaryTree(new Symbol(CONCATENATION), op, new BinaryTree(new Symbol(KLEENE), op, null));
+                BinaryTree ope = new BinaryTree(op);
+                BinaryTree b = new BinaryTree(new Symbol(CONCATENATION), op, new BinaryTree(new Symbol(KLEENE), ope, null));
                 queue.push(b);
                 stack.pop();
             } else if (stack.peek().equals(KLEENE)) {
@@ -374,5 +378,24 @@ public class Regexer {
         }
         
         return set;
+    }
+
+    public String insertCats(String expression) {
+        String modified = "";
+        for (int i = 0; i < expression.length() - 1; i++) {
+            Symbol current = new Symbol("" + expression.charAt(i));
+            Symbol next = new Symbol("" + expression.charAt(i+1));
+
+            if ( (isRightParentheses(current) || isOperand(current)) && (isOperand(next) || isLeftParentheses(next)) ) {
+                modified = modified + current.toString() + Regexer.CONCATENATION;
+            } else if ((isOperator(current) && getArity(current) == 1) && (isLeftParentheses(next) || isOperand(next))) {
+                modified = modified + current.toString() + Regexer.CONCATENATION;
+            } else {
+                modified = modified+current.toString();
+            }
+        } 
+        modified = modified + expression.charAt(expression.length()-1);
+        return modified;
+        
     }
 }

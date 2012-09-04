@@ -1,0 +1,4 @@
+Initial: 
+1-2-4Accepting: 
+1-2-44States:  
+1-2-44Transitions:  (1-2-4, a, (4)), (1-2-4, b, (4))}
