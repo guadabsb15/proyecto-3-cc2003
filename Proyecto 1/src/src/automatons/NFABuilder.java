@@ -19,16 +19,35 @@ import struct.BinaryTree;
  */
 public class NFABuilder {
     
+    /**
+     * Stack for the construction process
+     */
     private Stack<Automaton> evalStack;
     
+    /**
+     * Regular expression analyzer for tree construction
+     */
     private Regexer regexer;
     
+    /**
+     * Index to identify new states 
+     */
     private int index;
     
+    /**
+     * Symbols of the automaton
+     */
     private Set<Symbol> symbols;
     
+    /**
+     * Built NFA
+     */
     private Automaton nfa;
     
+    /**
+     * Class constructor
+     * @param rgxr 
+     */
     public NFABuilder(Regexer rgxr) {
         evalStack = new Stack<Automaton>();
         index = 0;
@@ -37,6 +56,12 @@ public class NFABuilder {
         nfa = null;
     }
     
+    /**
+     * Builds an NFA using the McNaughton-Yamada-Thomson algorithm
+     * @param regex
+     * @return
+     * @throws Exception 
+     */
     public Automaton build(String regex) throws Exception {
         nfa = null;
         evalStack = new Stack<Automaton>();
@@ -131,53 +156,7 @@ public class NFABuilder {
                         evalStack.push(newAutomaton);
                         
                     } else if (current.equals(Regexer.CONCATENATION)) {
-                        /*
-                        Automaton op2 = evalStack.pop();
-                        Automaton op1 = evalStack.pop();
-                        NFA newAutomaton = new NFA();
-                        
-                        newAutomaton.absorb(op1);
-                        newAutomaton.absorb(op2);
-                        
-                        State newInitial = op1.initial_state();
-                        
-                        Iterator op1Accepting = op1.accepting.iterator();
-                        State mid = (State) op1Accepting.next();
-                        State op2Initial = op2.initial_state();
-                        
-                        newAutomaton.changeInitialState(newInitial); 
-                        
-                        Iterator accepting = op2.accepting.iterator();
-                        State newAccepting = (State)accepting.next();
-                        
-                        newAutomaton.addAcceptingState(newAccepting);
-                        
-                        Set<Pair<State, Symbol>> keys = newAutomaton.transition().keySet();
-                        
-                        Iterator k = keys.iterator();
-                        ArrayList<Pair<State, Symbol>> toRemove = new ArrayList();
-                        while (k.hasNext()) {
-                            Pair<State, Symbol> c = (Pair<State, Symbol>) k.next();
-                            State s = c.returnFirst();
-                            Symbol sym = c.returnSecond();
-                            Set<State> value = op2.transition().get(c);
-                            
-                            if (s.equals(op2Initial)) {
-                                if (!value.equals(op2Initial.toSet())) newAutomaton.addTransition(new Pair<State, Symbol>(mid, sym), value);
-                                toRemove.add(c);
-                            }
-                             
-                        }
-                        
-                        for (int i = 0; i < toRemove.size(); i++) {
-                            if (toRemove.get(i) != null) newAutomaton.removeKey(toRemove.get(i));
-                        }
-                        
-                        newAutomaton.removeState(op2Initial);
-                        
-                        evalStack.push(newAutomaton);
-                        */
-                        
+             
                         Automaton op2 = evalStack.pop();
                         Automaton op1 = evalStack.pop();
                         NFA newAutomaton = new NFA();
@@ -193,11 +172,8 @@ public class NFABuilder {
                         
                         evalStack.push(newAutomaton);
                         
-                    }
-                    
-                    
-                }
-                
+                    }       
+                }            
             }
             
             nfa = evalStack.pop();
@@ -212,6 +188,10 @@ public class NFABuilder {
         
     }
     
+    /**
+     * Returns the current NFA
+     * @return 
+     */
     public NFA nfa() {
         return (NFA) nfa;
     }

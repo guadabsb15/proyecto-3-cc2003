@@ -5,55 +5,64 @@
 package src.automatons;
 
 /**
- *
+ * Represents a one-character symbol
  * @author asus
  */
 public class Symbol {
-    
+    /**
+     * Identifier
+     */
     private char id;
     
+    /**
+     * Associated label
+     */
     private State associated;
     
-    private int type;
-    
+    /**
+     * Class constructor from another symbol
+     * @param sym 
+     */
     public Symbol(Symbol sym) {
         this.id = sym.id();
     }
     
+    /**
+     * Class constructor from a String
+     * @param s 
+     */
     public Symbol(String s) {
         id = s.charAt(0);
     }
     
+    /**
+     * Class constructor from a char
+     * @param c 
+     */
     public Symbol(char c) {
         id = c;
     }
     
-    public Symbol(String s, int t) {
-        id = s.charAt(0);
-        type = t;
-    }
-    
-    public Symbol(char c, int t) {
-        id = c;
-        type = t;
-    }
-    
+    /**
+     * Returns the symbol's id
+     * @return 
+     */
     public char id() {
         return id;
     }
     
-    public int type() {
-        return type;
-    }
-    
-    public void setType(int t) {
-        type = t;
-    }
-    
+    /**
+     * Set a state label
+     * @param s 
+     */
     public void setState(State s) {
         associated = s;
     }
     
+    /**
+     * Return the associated label
+     * @return 
+     */
     public State associated() {
         return associated;
     }

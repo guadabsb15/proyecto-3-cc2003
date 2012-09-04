@@ -1,4 +1,0 @@
-Initial: 
-1-3Accepting: 
-1-33States:  
-1-33Transitions:  (1-3, a, (3))}

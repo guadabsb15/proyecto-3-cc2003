@@ -20,10 +20,17 @@ public class NFA extends Automaton {
     
     //Stack<State> todo = new Stack<State>();
     
+    /**
+     * Class constructor
+     */
     public NFA() {
         super();
     }
     
+    /**
+     * Adds a state to the automaton
+     * @param s 
+     */
     @Override
     public void addState(State s) {
         if (!super.states.contains(s)) {
@@ -38,6 +45,11 @@ public class NFA extends Automaton {
         }  
     }
        
+    /**
+     * Epsilon closure function
+     * @param s
+     * @return 
+     */
     public Set<State> eClosure(State s) {
         Set<State> set = new LinkedHashSet();
         Set<State> visited = new LinkedHashSet();
@@ -62,6 +74,11 @@ public class NFA extends Automaton {
         }
     }
     
+    /**
+     * Epsilon closure function for a set
+     * @param T
+     * @return 
+     */
     public Set<State> eClosure(Set<State> T) {
         Set<State> result = new LinkedHashSet();
         Stack<State> todo = new Stack<State>();
@@ -77,8 +94,12 @@ public class NFA extends Automaton {
         return result;
     }
     
-
-    
+    /**
+     * Move function
+     * @param T
+     * @param a
+     * @return 
+     */
     public Set<State> move(Set<State> T, Symbol a) {
         Iterator iterator = T.iterator();
         Set<State> result = new LinkedHashSet();
@@ -95,9 +116,13 @@ public class NFA extends Automaton {
         
     }
     
+    /**
+     * Simulates the string introduced an input, returning true if it belongs to the language accepted by the automaton (or false if it does not belong)
+     * @param string
+     * @return 
+     */
     @Override
     public boolean simulate(String string) {
-        long init = System.nanoTime();
         Set<State> s = eClosure(super.initial_state);
         Symbol c;
         
@@ -116,18 +141,21 @@ public class NFA extends Automaton {
         Set<State> intersection = new LinkedHashSet(s);
         intersection.retainAll(super.accepting);
         if (!intersection.isEmpty()) {
-            System.out.println((System.nanoTime()-init));
             return true;
         } else {
-            System.out.println((System.nanoTime()-init));
             return false;
         }
         
     }
     
-
+    /**
+     * Converts the NFA to a DFA applying the subset construction algorithm
+     * @return
+     * @throws Exception 
+     */
     @Override
-    public Automaton toDfa() {
+    public Automaton toDfa() throws Exception {
+        if (this == null) throw new Exception("No se puede convertir a DFA");
         Automaton dfa = new DFA();
         Map<Pair<State, Symbol>, Set<State>> transitions = new LinkedHashMap();
         

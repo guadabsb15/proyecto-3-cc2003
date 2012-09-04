@@ -72,6 +72,16 @@ public class DFABuilderTest {
         result = dfa.simulate("");
         assertEquals(result, true);
         
+        regex = "";
+        dfa = instance.build(regex);
+        result = dfa.simulate("a");
+        assertEquals(result, false);
+        
+        regex = "";
+        dfa = instance.build(regex);
+        result = dfa.simulate("");
+        assertEquals(result, true);
+        
         
         regex = "a|ε";
         dfa = instance.build(regex);

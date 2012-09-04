@@ -123,6 +123,7 @@ public class Regexer {
         expression = expression.trim();
         expression = expression.replaceAll(" ", "");
         expression = insertCats(expression);
+        if (expression.equals("")) expression = Regexer.EMPTY_STR.toString();
         getTokens(expression);     
         shunt();   
         return abstractSyntaxTree;
@@ -162,6 +163,7 @@ public class Regexer {
             }
             else if (isLeftParentheses(actual)) stack.push(actual);
             else if (isRightParentheses(actual)) {
+                if (stack.isEmpty()) throw new Exception("Paréntesis mal formados");
                 while (!isLeftParentheses(stack.peek())) {
                     makeTree();
                 }
@@ -394,7 +396,7 @@ public class Regexer {
                 modified = modified+current.toString();
             }
         } 
-        modified = modified + expression.charAt(expression.length()-1);
+        if (expression.length()>=1) modified = modified + expression.charAt(expression.length()-1);
         return modified;
         
     }

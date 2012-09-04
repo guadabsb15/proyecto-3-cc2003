@@ -18,12 +18,24 @@ import src.Regexer;
  */
 public class DFA extends Automaton  {
     
+    /**
+     * Dead state for the simulation
+     */
     private State deadState = new State("dead");
     
+    /**
+     * Class constructor
+     */
     public DFA() {
         super();
     }
     
+    /**
+     * Verifies that transitions are correct according to the definition of a DFA
+     * @param transitions
+     * @return
+     * @throws Exception 
+     */
     private boolean validate(Map transitions) throws Exception {
         Collection<Set> values = transitions.values();
         Iterator<Set> iter = values.iterator();
@@ -37,9 +49,13 @@ public class DFA extends Automaton  {
        
     }
 
+    /**
+     * Simulates the string provided as an input
+     * @param input
+     * @return 
+     */
     @Override
     public boolean simulate(String input) {
-        long init = System.nanoTime();
         input = input.replace(" ", "");
         State s = super.initial_state;
         Symbol c;
@@ -64,19 +80,23 @@ public class DFA extends Automaton  {
         }
         
         if (super.accepting.contains(s)) {
-            System.out.println((System.nanoTime()-init));
+            
             return true;
         }
-
-        System.out.println((System.nanoTime()-init));
         return false;
     }
     
     @Override
-    public Automaton toDfa() {
+    public Automaton toDfa() throws Exception {
         return this;
     }
 
+    /**
+     * Move function for a DFA
+     * @param s
+     * @param c
+     * @return 
+     */
     private State move(State s, Symbol c) {
         Pair<State, Symbol> key = new Pair<State, Symbol>(s, c);
         Set<State> next = super.transition.get(key);
@@ -89,6 +109,10 @@ public class DFA extends Automaton  {
         
     }
     
+    /**
+     * Implements the DFA minimization algorithm
+     * @return 
+     */
     @Override
     public Automaton minimize() {
         

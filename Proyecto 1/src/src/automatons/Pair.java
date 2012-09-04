@@ -10,19 +10,38 @@ package src.automatons;
  */
 public class Pair<E, F> {
     
+    /**
+     * First object of the pair
+     */
     private E p0;
     
+    /**
+     * Second object of the pair
+     */
     private F p1;
     
+    /**
+     * Class constructor
+     * @param e
+     * @param f 
+     */
     public Pair(E e, F f) {
         p0 = e;
         p1 = f;
     }
     
+    /**
+     * Returns the first object
+     * @return 
+     */
     public E returnFirst() {
         return p0;
     }
     
+    /**
+     * Returns the second object
+     * @return 
+     */
     public F returnSecond() {
         return p1;
     }

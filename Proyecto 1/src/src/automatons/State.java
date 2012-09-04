@@ -13,10 +13,14 @@ import java.util.Set;
  */
 public class State {
     
+    /**
+     * Identifier of the state
+     */
     private String id;
-    
-    private int type;
-    
+   
+    /**
+     * Holds the state that compose this particular state, if applicable
+     */
     private Set<State> set = null;
     
      /**
@@ -34,27 +38,42 @@ public class State {
      */
     public final static int ACCEPTING_STATE = 3;
     
+    /**
+     * Class constructor from an id
+     * @param n 
+     */
     public State(String n) {
         id = n;
-
     }
     
+    /**
+     * Class constructor from a set of states
+     * @param s 
+     */
     public State(Set<State> s) {
         set = s;
     }
     
+    /**
+     * Returns the identifier
+     * @return 
+     */
     public String id() {
         return id;
     }
     
-    public int type() {
-        return type;
-    }
-    
+    /**
+     * Returns the set of states that compose this particular state
+     * @return 
+     */
     public Set<State> set() {
         return set;
     }
     
+    /**
+     * Returns the state wrapped in a set
+     * @return 
+     */
     public LinkedHashSet<State> toSet() {
         LinkedHashSet set = new LinkedHashSet();
         set.add(this);
@@ -66,7 +85,7 @@ public class State {
         if (o.getClass().equals(this.getClass())) {
             State other = (State) o;
             if (set == null) {
-                return other.id().equals(id) && other.type() == type;
+                return other.id().equals(id);
             } else {
                 return other.set().equals(set);
             }
@@ -79,7 +98,7 @@ public class State {
     public int hashCode() {
         int hash = 5;
         hash = 17 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 17 * hash + this.type;
+        hash = 17 * hash;
         return hash;
     }
     
@@ -88,7 +107,4 @@ public class State {
         return id;
     }
     
-    public void changeType(int t) {
-        type = t;
-    }
 }

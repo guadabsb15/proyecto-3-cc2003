@@ -57,42 +57,71 @@ public abstract class Automaton {
         symbols = new LinkedHashSet();
     }
     
-
-    
-  
-    
-    
+    /**
+     * Absorbs the states and transitions of another automaton
+     * @param other 
+     */
     public void absorb(Automaton other) {
         absorbStates(other.states());
         absorbTransitions(other.transition());
     }
     
+    /**
+     * Absorbs the states from a set of states
+     * @param other 
+     */
     public void absorbStates(Set<State> other) {
         states.addAll(other);
     }
     
+    /**
+     * Absorbs the transitions from a given map
+     * @param other 
+     */
     public void absorbTransitions(Map<Pair<State, Symbol>, Set<State>> other) {
         transition.putAll(other);
     }
     
+    /**
+     * Sets the symbol set for the automaton
+     * @param s 
+     */
     public void setSymbols(Set<Symbol> s) {
         symbols = s;
     }
     
+    /**
+     * Adds an accepting state
+     * @param s 
+     */
     public void addAcceptingState(State s) {
         accepting.add(s);
         addState(s);
     }
     
+    /**
+     * Changes the initial state of the automaton
+     * @param s 
+     */
     public void changeInitialState(State s) {
         initial_state = s;
         addState(s);
     }
     
+    /**
+     * Adds a state to the automaton
+     * @param s 
+     */
     public void addState(State s) {
         states.add(s);
     }
     
+    /**
+     * Adds a transition to the automaton
+     * @param p
+     * @param s
+     * @throws Exception 
+     */
     public void addTransition(Pair<State, Symbol> p, State s) throws Exception {
         if (!states.contains(p.returnFirst())) {
             throw new Exception("Reference to non-existant state");
@@ -107,6 +136,12 @@ public abstract class Automaton {
         }
     }
     
+    /**
+     * Adds a transition to the automaton
+     * @param p
+     * @param s
+     * @throws Exception 
+     */
     public void addTransition(Pair<State, Symbol> p, Set<State> s) throws Exception {
         if (!states.contains(p.returnFirst())) {
             throw new Exception("Reference to non-existant state");
@@ -121,36 +156,69 @@ public abstract class Automaton {
         
     }
     
+    /**
+     * Removes an accepting state
+     * @param s 
+     */
     public void removeAcceptingState(State s) {
         accepting.remove(s);
     }
     
+    /**
+     * Removes a state from the automaton
+     * @param s 
+     */
     public void removeState(State s) {
         accepting.remove(s);
         states.remove(s);
         if (initial_state.equals(s)) initial_state = null;
     }
      
+    /**
+     * Returns the states of the automaton
+     * @return 
+     */
     public Set<State> states() {
         return states;
     }
     
+    /**
+     * Returns the accepting states
+     * @return 
+     */
     public Set<State> accepting() {
         return accepting;
     }
     
+    /**
+     * Returns the transitions map
+     * @return 
+     */
     public Map<Pair<State, Symbol>, Set<State>> transition() {
         return transition;
     }
     
+    /**
+     * Returns the initial state
+     * @return 
+     */
     public State initial_state() {
         return initial_state;
     }
     
+    /**
+     * Returns the symbols set of the automaton
+     * @return 
+     */
     public Set<Symbol> symbols() {
         return symbols;
     }
     
+    /**
+     * Writes the components of the automaton to a file
+     * @param filename
+     * @throws Exception 
+     */    
     public void writeFile(String filename) throws Exception {
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
         new FileOutputStream(filename), "UTF-8"));
@@ -198,10 +266,20 @@ public abstract class Automaton {
         }
     }
     
+    /**
+     * Adds a symbol to the automaton
+     * @param s 
+     */
     public void addSymbol(Symbol s) {
         symbols.add(s);
     }
     
+    /**
+     * Writes a state to a file
+     * @param s
+     * @param w
+     * @throws Exception 
+     */
     private void printState(State s, Writer w) throws Exception {
         if (s.set() != null) {
             Iterator iterator = s.set().iterator();
@@ -217,6 +295,11 @@ public abstract class Automaton {
         
     }
     
+    /**
+     * Writes the transition functions of the automaton to a file
+     * @param w
+     * @throws Exception 
+     */
     private void printTransitions(BufferedWriter w) throws Exception {
         Set<Pair<State, Symbol>> keys = transition.keySet();
         Iterator k = keys.iterator();
@@ -225,7 +308,7 @@ public abstract class Automaton {
             Pair<State, Symbol> current = (Pair<State, Symbol>) k.next();
             printState(current.returnFirst(), w);
             w.write(", ");
-            w.write(current.returnSecond().toString() + ", (");
+            w.write(current.returnSecond().toString() + ", [");
             
             Set<State> value = transition.get(current);
             Iterator vals = value.iterator();
@@ -233,7 +316,7 @@ public abstract class Automaton {
                 printState((State) vals.next(), w);
                 if (vals.hasNext()) w.write(", ");
             }
-            w.write("))");
+            w.write("])");
             
             if (k.hasNext()) w.write(", ");
         }
@@ -241,13 +324,31 @@ public abstract class Automaton {
         
     }
     
+    /**
+     * Removes a key from the transition functions map
+     * @param k 
+     */
     public void removeKey(Pair<State, Symbol> k) {
         transition.remove(k);
     }
     
-    public abstract Automaton toDfa();
+    /**
+     * Convert the automaton to a deterministic finite automaton
+     * @return
+     * @throws Exception 
+     */
+    public abstract Automaton toDfa() throws Exception;
     
+    /**
+     * Simulation of a given string
+     * @param input
+     * @return 
+     */
     public abstract boolean simulate(String input);
     
+    /**
+     * Minimization algorithm
+     * @return 
+     */
     public abstract Automaton minimize();
 }
