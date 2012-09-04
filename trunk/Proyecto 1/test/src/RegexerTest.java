@@ -4,6 +4,8 @@
  */
 package src;
 
+import struct.BinaryTree;
+import src.automatons.Symbol;
 import java.util.Set;
 import java.util.Iterator;
 import struct.BTPostOrderIterator;
@@ -42,11 +44,14 @@ public class RegexerTest {
     /**
      * Test of evaluate method, of class Evaluator2.
      */
-    @Test
+    //@Test
     public void testEvaluate() {
         Regexer e = new Regexer();
         //e.evaluate("(2 * 3) + 4 * 2");
         try {
+            e.evaluate("a|ε");
+            BinaryTree<Symbol> tree = e.returnAST();
+            
             e.evaluate("(1 | 2 + | 3) * ");
             BTPostOrderIterator it = new BTPostOrderIterator(e.returnAST());
             while (it.hasNext()) {
@@ -70,7 +75,7 @@ public class RegexerTest {
     /**
      * Test of evaluate method, of class Evaluator2.
      */
-    @Test
+    //@Test
     public void testMakeSymbolSet() {
         Regexer e = new Regexer();
         try {
@@ -83,6 +88,21 @@ public class RegexerTest {
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+
+    }  
+    
+    /**
+     * Test of evaluate method, of class Evaluator2.
+     */
+    @Test
+    public void testCat() {
+        Regexer e = new Regexer();
+        String result = e.insertCats("ab");
+        assertEquals(result, "a·b");
+        
+        result = e.insertCats("(a|b)(ba)*a");
+        assertEquals(result, "(a|b)·(b·a)*·a");
+        
 
     }  
 }

@@ -97,6 +97,7 @@ public class NFA extends Automaton {
     
     @Override
     public boolean simulate(String string) {
+        long init = System.nanoTime();
         Set<State> s = eClosure(super.initial_state);
         Symbol c;
         
@@ -115,8 +116,10 @@ public class NFA extends Automaton {
         Set<State> intersection = new LinkedHashSet(s);
         intersection.retainAll(super.accepting);
         if (!intersection.isEmpty()) {
+            System.out.println((System.nanoTime()-init));
             return true;
         } else {
+            System.out.println((System.nanoTime()-init));
             return false;
         }
         
@@ -167,7 +170,13 @@ public class NFA extends Automaton {
         
         dfa.absorbStates(dStates);
         dfa.absorbTransitions(transitions);
+        dfa.setSymbols(super.symbols);
         return dfa;
+    }
+    
+    @Override
+    public Automaton minimize() {
+        return this;
     }
       
 }

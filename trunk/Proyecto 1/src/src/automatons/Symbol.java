@@ -16,6 +16,10 @@ public class Symbol {
     
     private int type;
     
+    public Symbol(Symbol sym) {
+        this.id = sym.id();
+    }
+    
     public Symbol(String s) {
         id = s.charAt(0);
     }

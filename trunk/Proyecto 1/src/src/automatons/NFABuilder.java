@@ -4,6 +4,7 @@
  */
 package src.automatons;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -37,6 +38,10 @@ public class NFABuilder {
     }
     
     public Automaton build(String regex) throws Exception {
+        nfa = null;
+        evalStack = new Stack<Automaton>();
+        index = 0;
+        
         try {
             regexer.evaluate(regex);
             BinaryTree<Symbol> tree = regexer.returnAST();
@@ -126,10 +131,55 @@ public class NFABuilder {
                         evalStack.push(newAutomaton);
                         
                     } else if (current.equals(Regexer.CONCATENATION)) {
+                        /*
+                        Automaton op2 = evalStack.pop();
+                        Automaton op1 = evalStack.pop();
+                        NFA newAutomaton = new NFA();
+                        
+                        newAutomaton.absorb(op1);
+                        newAutomaton.absorb(op2);
+                        
+                        State newInitial = op1.initial_state();
+                        
+                        Iterator op1Accepting = op1.accepting.iterator();
+                        State mid = (State) op1Accepting.next();
+                        State op2Initial = op2.initial_state();
+                        
+                        newAutomaton.changeInitialState(newInitial); 
+                        
+                        Iterator accepting = op2.accepting.iterator();
+                        State newAccepting = (State)accepting.next();
+                        
+                        newAutomaton.addAcceptingState(newAccepting);
+                        
+                        Set<Pair<State, Symbol>> keys = newAutomaton.transition().keySet();
+                        
+                        Iterator k = keys.iterator();
+                        ArrayList<Pair<State, Symbol>> toRemove = new ArrayList();
+                        while (k.hasNext()) {
+                            Pair<State, Symbol> c = (Pair<State, Symbol>) k.next();
+                            State s = c.returnFirst();
+                            Symbol sym = c.returnSecond();
+                            Set<State> value = op2.transition().get(c);
+                            
+                            if (s.equals(op2Initial)) {
+                                if (!value.equals(op2Initial.toSet())) newAutomaton.addTransition(new Pair<State, Symbol>(mid, sym), value);
+                                toRemove.add(c);
+                            }
+                             
+                        }
+                        
+                        for (int i = 0; i < toRemove.size(); i++) {
+                            if (toRemove.get(i) != null) newAutomaton.removeKey(toRemove.get(i));
+                        }
+                        
+                        newAutomaton.removeState(op2Initial);
+                        
+                        evalStack.push(newAutomaton);
+                        */
                         
                         Automaton op2 = evalStack.pop();
                         Automaton op1 = evalStack.pop();
-                        
                         NFA newAutomaton = new NFA();
                         newAutomaton.absorb(op1);
                         newAutomaton.absorb(op2);
@@ -140,7 +190,7 @@ public class NFABuilder {
                         Iterator op1Accepting = op1.accepting.iterator();
                         Pair<State, Symbol> midKey = new Pair<State, Symbol>((State)op1Accepting.next(), regexer.EMPTY_STR);
                         newAutomaton.addTransition(midKey, op2.initial_state().toSet());
-                       
+                        
                         evalStack.push(newAutomaton);
                         
                     }
@@ -149,13 +199,16 @@ public class NFABuilder {
                 }
                 
             }
+            
+            nfa = evalStack.pop();
+            nfa.setSymbols(regexer.symbols());
+            return nfa;
+            
         } catch (Exception e) {
             throw e;
         }
         
-        nfa = evalStack.pop();
-        nfa.setSymbols(symbols);
-        return nfa;
+        
         
     }
     

@@ -39,16 +39,24 @@ public class DFABuilder {
         regexer = rgxr;
         followpos = new LinkedHashMap<String, Set<State>>();
         table = new LinkedHashMap<Symbol, Set<State>>();
-        
+        acceptingPos = null;
+        symbols = null;
     }
     
     public Automaton build(String regex) throws Exception {
+        index = 1;
+        followpos = new LinkedHashMap<String, Set<State>>();
+        table = new LinkedHashMap<Symbol, Set<State>>();
+        acceptingPos = null;
+        symbols = null;
+        
         try {
-            String extended = regex + "·#";
+            String extended = "(" + regex + ")#";
             regexer.evaluate(extended);
             symbols = regexer.symbols();
+            symbols.remove(Regexer.EMPTY_STR);
             BinaryTree<Symbol> tree = regexer.returnAST();
-            
+            BinaryTree<Symbol> valueTree = new BinaryTree(tree.value());
             label(tree);
             computeFollowpos(tree);
             return construct(tree);
@@ -58,12 +66,15 @@ public class DFABuilder {
         }    
     }
 
-    public void label(BinaryTree<Symbol> tree) {
+    public void label(BinaryTree<Symbol> tree ) {
         
         if ((tree.left().value() == null) && (tree.right().value() == null)) {
             State s = new State(Integer.toString(index));
             index++;
-            tree.value().setState(s);
+            Symbol current = (Symbol) tree.value();
+            Symbol replacement = new Symbol(current);
+            replacement.setState(s);
+            tree.setValue(replacement);
             
             Symbol key = tree.value();
             if (key.id() == ("#".charAt(0))) acceptingPos = s;
@@ -185,7 +196,7 @@ public class DFABuilder {
                     previous = new LinkedHashSet<State>();
                 }
                 previous.addAll(newValues);
-                followpos.put(currentKey, newValues);    
+                followpos.put(currentKey, previous);    
             }
             
             
@@ -220,6 +231,7 @@ public class DFABuilder {
         Automaton dfa = new DFA();
          
         State initial = new State(firstpos(root));
+        if (firstpos(root).contains(acceptingPos)) dfa.addAcceptingState(initial);
         dfa.changeInitialState(initial);
         Stack<State> unmarked = new Stack<State>();
         unmarked.push(initial);

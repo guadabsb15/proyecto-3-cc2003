@@ -9,6 +9,24 @@ public class BinaryTree<E> {
     protected BinaryTree<E> parent; // parent of node
     protected BinaryTree<E> left, right; // children of node
 
+    public BinaryTree(BinaryTree<E> tree) {
+        val = tree.value();
+        
+        if (!(tree.left.value() == null)) {
+            left = new BinaryTree(tree.left());
+        } else {
+            left = new BinaryTree<E>();
+            setLeft(left);
+        }
+        
+        if (!(tree.right.value() == null)) {
+            right = new BinaryTree(tree.right());
+        } else {
+            right = new BinaryTree<E>();
+            setRight(right);
+        }
+    }
+    
     public BinaryTree()
 // post: constructor that generates an empty node
     {
