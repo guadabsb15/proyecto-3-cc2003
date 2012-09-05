@@ -21,7 +21,7 @@ public class DFA extends Automaton  {
     /**
      * Dead state for the simulation
      */
-    private State deadState = new State("dead");
+    public final static State deadState = new State("dead");
     
     /**
      * Class constructor
