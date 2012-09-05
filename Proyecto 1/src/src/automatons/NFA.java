@@ -160,10 +160,19 @@ public class NFA extends Automaton {
         Map<Pair<State, Symbol>, Set<State>> transitions = new LinkedHashMap();
         
         Stack<Set<State>> unmarked = new Stack<Set<State>>();
-        unmarked.push(eClosure(super.initial_state));
+        Set<State> initSet = eClosure(super.initial_state);
+        unmarked.push(initSet);
         
         State initial = new State(eClosure(super.initial_state));
         dfa.changeInitialState(initial);
+        Iterator acc = super.accepting.iterator();
+        while (acc.hasNext()) {
+            State current = (State) acc.next();
+            if (initSet.contains(current)) {
+                dfa.addAcceptingState(initial);
+                break;
+            }
+        }
         
         Set<State> dStates = new LinkedHashSet<State>();
         dStates.add(initial);

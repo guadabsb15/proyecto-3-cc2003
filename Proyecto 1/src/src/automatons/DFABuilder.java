@@ -77,6 +77,9 @@ public class DFABuilder {
         symbols = null;
         
         try {
+            if (regex.trim().equals("")) {
+                regex = Regexer.EMPTY_STR.toString();
+            }
             String extended = "(" + regex + ")#";
             regexer.evaluate(extended);
             symbols = regexer.symbols();
