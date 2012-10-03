@@ -84,6 +84,7 @@ public class DFABuilder {
             regexer.evaluate(extended);
             symbols = regexer.symbols();
             symbols.remove(Regexer.EMPTY_STR);
+            symbols.remove(new Symbol("#"));
             BinaryTree<Symbol> tree = regexer.returnAST();
             BinaryTree<Symbol> valueTree = new BinaryTree(tree.value());
             label(tree);
@@ -309,31 +310,34 @@ public class DFABuilder {
             Iterator syms = symbols.iterator();
             while (syms.hasNext()) {
                 Symbol a = (Symbol) syms.next();
-                Set<State> U = new LinkedHashSet();
-                Set<State> positions = table.get(a);
+                if (!a.equals(Regexer.EMPTY_STR)) {
+                    Set<State> U = new LinkedHashSet();
+                    Set<State> positions = table.get(a);
                 
-                Iterator p = S.iterator();
+                    Iterator p = S.iterator();
                 
-                while (p.hasNext()) {
-                    State current = (State) p.next();
-                    if ((positions!=null) && (positions.contains(current))) {
-                        Set<State> toAdd = followpos.get(current.id());
-                        if (toAdd != null) U.addAll(toAdd);
-                    }    
+                    while (p.hasNext()) {
+                        State current = (State) p.next();
+                        if ((positions!=null) && (positions.contains(current))) {
+                            Set<State> toAdd = followpos.get(current.id());
+                            if (toAdd != null) U.addAll(toAdd);
+                        }    
 
-                }
-                
-                if (!U.isEmpty() && !S.isEmpty()) {
-                   State uState = new State(U);
-                    boolean added = dStates.add(uState);
-                    if (added) {
-                        unmarked.push(uState);
                     }
-                    if (U.contains(acceptingPos)) dfa.addAcceptingState(uState);
-                    Pair<State, Symbol> k = new Pair<State, Symbol>(sState, a); 
-                    transitions.put(k, uState.toSet()); 
-                }               
-            }     
+                
+                    if (!U.isEmpty() && !S.isEmpty()) {
+                        State uState = new State(U);
+                        boolean added = dStates.add(uState);
+                        if (added) {
+                            unmarked.push(uState);
+                        }
+                        if (U.contains(acceptingPos)) dfa.addAcceptingState(uState);
+                        Pair<State, Symbol> k = new Pair<State, Symbol>(sState, a); 
+                        if (!k.returnSecond().equals(Regexer.EMPTY_STR))
+                            transitions.put(k, uState.toSet()); 
+                        }  
+                 }             
+          }     
         }
         
         dfa.absorbStates(dStates);

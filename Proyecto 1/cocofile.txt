@@ -1,0 +1,2 @@
+\v\ hola 1892 identificador CHARACTERS 
+182 hall143 "un string" \v\ 

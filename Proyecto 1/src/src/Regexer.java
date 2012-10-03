@@ -6,6 +6,7 @@ package src;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EmptyStackException;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -124,8 +125,13 @@ public class Regexer {
         expression = expression.replaceAll(" ", "");
         expression = insertCats(expression);
         if (expression.equals("")) expression = Regexer.EMPTY_STR.toString();
-        getTokens(expression);     
-        shunt();   
+        getTokens(expression);  
+        try {
+           shunt();  
+        } catch (EmptyStackException e) {
+            throw new Exception("Expresión mal formada");
+        }
+          
         return abstractSyntaxTree;
     }
     
