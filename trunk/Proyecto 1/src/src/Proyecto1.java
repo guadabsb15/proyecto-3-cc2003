@@ -4,6 +4,7 @@
  */
 package src;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import src.automatons.Automaton;
 import src.automatons.DFABuilder;
@@ -30,10 +31,13 @@ public class Proyecto1 {
     
     private Automaton dfa;
     
+    private Proyecto proyecto = new Proyecto();
+    
     public Proyecto1() {
         regexer = new Regexer();
         nfaBuilder = new NFABuilder(regexer);
         dfaBuilder = new DFABuilder(regexer);
+        //proyecto = p;
     }
     
     public void build(String rgx) throws Exception {
@@ -42,49 +46,57 @@ public class Proyecto1 {
         nfaToDfa = nfa.toDfa();
         nfaToDfa.writeFile("subset.txt");
         dfa = dfaBuilder.build(rgx);
-        nfa.writeFile("direct.txt");
+        dfa.writeFile("direct.txt");
     }
     
-    public void simulate(String input) {
-        System.out.println("Simulación:");
+    public ArrayList<String> simulate(String input) {
+        ArrayList<String> strings = new ArrayList<String>();
+        strings.add("Simulación:");
         long init = System.nanoTime();
         if (nfa.simulate(input)) {
-            System.out.println("Tiempo: " + (System.nanoTime()-init));
-            System.out.println("Thomson: SÍ");
+            strings.add("Tiempo: " + (System.nanoTime()-init) + "ns");
+            strings.add("Thomson: SÍ");
         }
         else {
-            System.out.println("Tiempo: " + (System.nanoTime()-init));
-            System.out.println("Thomson: NO");
+            strings.add("Tiempo: " + (System.nanoTime()-init) + "ns");
+            strings.add("Thomson: NO");
         }
+        strings.add("");
         
         init = System.nanoTime();
         if (nfaToDfa.simulate(input)) {
-            System.out.println("Tiempo: " + (System.nanoTime()-init));
-            System.out.println("Subconjuntos: SÍ");
+            strings.add("Tiempo: " + (System.nanoTime()-init) + "ns");
+            strings.add("Subconjuntos: SÍ");
         }
         else {
-            System.out.println("Tiempo: " + (System.nanoTime()-init));
-            System.out.println("Subconjuntos: NO");
+            strings.add("Tiempo: " + (System.nanoTime()-init) + "ns");
+            strings.add("Subconjuntos: NO");
         }
+         strings.add("");
         
         init = System.nanoTime();
         if (dfa.simulate(input)) {
-            System.out.println("Tiempo: " + (System.nanoTime()-init));
-            System.out.println("DFA directo: SÍ");
+            strings.add("Tiempo: " + (System.nanoTime()-init) + "ns");
+            strings.add("DFA directo: SÍ");
         }
         else {
-            System.out.println("DFA directo: NO");
+            strings.add("Tiempo: " + (System.nanoTime()-init) + "ns");
+            strings.add("DFA directo: NO");
         }
+         strings.add("");
+         return strings;
     }
+    
     
     /**
      * @param args the command line arguments
      */
+    /*
     public static void main(String[] args) {
         System.out.println("----------------------------------------");{
-        Scanner in = new Scanner(System.in);
-        Proyecto1 p = new Proyecto1();
-        
+        Scanner in = new Scanner(System.in, "UTF-8");
+        //Proyecto1 p = new Proyecto1();
+        /*
         System.out.println("Ingrese la expresión regular: ");
         String regex = in.nextLine();
         try {
@@ -103,9 +115,10 @@ public class Proyecto1 {
             System.out.println();
             System.out.println("Ingrese la cadena a validar (-1 para terminar): ");
             input = in.nextLine();
-            
-        }
+     }       
+        }*/
         
-    }
-    }
-}
+    
+
+ }
+

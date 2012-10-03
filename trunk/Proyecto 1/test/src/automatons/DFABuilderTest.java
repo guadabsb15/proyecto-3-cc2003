@@ -56,9 +56,7 @@ public class DFABuilderTest {
         assertEquals(false, dfa.simulate(""));
         assertEquals(false, dfa.simulate("ab"));
         assertEquals(false, dfa.simulate("acb"));
-        
-        
-        
+          
         regex = "(a|b)*abb";
         dfa = instance.build(regex);
         assertEquals(true, dfa.simulate("abb"));
@@ -66,6 +64,11 @@ public class DFABuilderTest {
         assertEquals(false, dfa.simulate("ab"));
         assertEquals(false, dfa.simulate("acb"));
         boolean result;
+        
+        regex = "a*";
+        dfa = instance.build(regex);
+        result = dfa.simulate("");
+        assertEquals(result, true);
         
         regex = "(a | b )?";
         dfa = instance.build(regex);
@@ -147,7 +150,7 @@ public class DFABuilderTest {
         
         regex = "(a | b )+";
         dfa = instance.build(regex);
-        dfa.writeFile("archivo.txt");
+        //dfa.writeFile("archivo.txt");
         result = dfa.simulate("ababab");
         assertEquals(result, true);
         
@@ -194,6 +197,11 @@ public class DFABuilderTest {
         regex = "aε";
         dfa = instance.build(regex);
         result = dfa.simulate("a");
+        assertEquals(result, true);
+        
+        regex = "ε";
+        dfa = instance.build(regex);
+        result = dfa.simulate("");
         assertEquals(result, true);
     }
 }
