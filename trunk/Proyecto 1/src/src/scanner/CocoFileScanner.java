@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  *
@@ -21,11 +23,17 @@ public class CocoFileScanner {
     
     private ArrayList<Token> tokens;
     
+    private Set<Character> ignore;
+    
     public CocoFileScanner(String filename) throws Exception {
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF-8")); 
             consume();
             tokens = new ArrayList();
+            ignore = new LinkedHashSet();
+            ignore.add(' ');
+            ignore.add('\r');
+            ignore.add('\n');
         } catch (Exception e) {
             throw e;
         }
@@ -35,8 +43,9 @@ public class CocoFileScanner {
     
     public Token getToken() throws Exception {
         try {
+            
+            while (ignore.contains((char)currentCharacter)) consume();
             char current = (char) currentCharacter;
-            if ((current == ' ') || (current == '\r')) consume();
             if (Character.isDigit(current)) {
                 return number();
             } else if (Character.isLetter(current)) {
@@ -127,7 +136,7 @@ public class CocoFileScanner {
     private void consume() throws Exception {
         try {
             currentCharacter = reader.read(); 
-            if (currentCharacter == '\r') currentCharacter = reader.read(); 
+            //if (currentCharacter == '\r') currentCharacter = reader.read(); 
         } catch (Exception e) {
             throw e;
         }
