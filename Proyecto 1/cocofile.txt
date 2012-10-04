@@ -1,2 +1,14 @@
-\v\ hola 1892 identificador CHARACTERS 
-182 hall143 "un string" \v\ 
+COMPILER Ejemplo
+
+CHARACTERS
+
+letter = "abcdefghijklmnopqrstuvwxyz".
+
+KEYWORDS
+
+if="if".
+while="while".
+
+TOKENS
+
+PRODUCTIONS
