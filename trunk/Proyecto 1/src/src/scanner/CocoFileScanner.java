@@ -86,6 +86,7 @@ public class CocoFileScanner {
         }
         String str = s.toString();
         if (str.equals("CHARACTERS")) return (new Token(Token.RESERVED, str));
+        else if (str.equals("COMPILER")) return (new Token(Token.RESERVED, str));
         else if (str.equals("KEYWORDS")) return (new Token(Token.RESERVED, str));
         else if (str.equals("TOKENS")) return (new Token(Token.RESERVED, str));
         else return (new Token(Token.IDENT, s.toString()));
