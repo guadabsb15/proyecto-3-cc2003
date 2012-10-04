@@ -128,7 +128,13 @@ public class CocoFileScanner {
         if (current == '(') return (new Token(Token.LPAREN, Character.toString(current))); 
         else if (current == ')') return (new Token(Token.RPAREN, Character.toString(current)));
         else if (current == '=') return (new Token(Token.EQUAL, Character.toString(current)));
-        
+        else if (current == '+') return (new Token(Token.PLUS, Character.toString(current)));
+        else if (current == '-') return (new Token(Token.MINUS, Character.toString(current)));
+        else if (current == '.') return (new Token(Token.MINUS, Character.toString(current)));
+        else if (current == '[') return (new Token(Token.SQLBRACKET, Character.toString(current)));
+        else if (current == ']') return (new Token(Token.SQRBRACKET, Character.toString(current)));
+        else if (current == '{') return (new Token(Token.CULBRACKET, Character.toString(current)));
+        else if (current == '}') return (new Token(Token.CURBRACKET, Character.toString(current)));
         return null;
     }
     

@@ -30,6 +30,20 @@ public interface TokenTypes {
     
     public static final int IGNORE = 9;
     
+    public static final int PLUS = 10;
+    
+    public static final int MINUS = 11;
+    
+    public static final int POINT = 12;
+    
+    public static final int SQRBRACKET = 13;
+    
+    public static final int SQLBRACKET = 14;
+    
+    public static final int CURBRACKET = 15;
+    
+    public static final int CULBRACKET = 15;
+    
     public static final Token EOF_TOKEN = new Token(EOF, "-1");
     
 }

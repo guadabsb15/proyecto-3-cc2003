@@ -6,6 +6,8 @@ package src.scanner;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import struct.GenericTree;
 
 /**
@@ -24,28 +26,41 @@ public class CocoFileParser {
     
     private String compiler;
     
-    private LinkedHashMap characters;
-    
-    private LinkedHashMap keywords;
-    
-    private LinkedHashMap tokens;
+    private LinkedHashMap symbolTable;
     
     public CocoFileParser(String filename) throws Exception {
         lexer = new CocoFileScanner(filename);
         lookAhead = lexer.getToken();
         consume();
         parseTree = new GenericTree();
+        symbolTable = new LinkedHashMap();
     }
     
    public GenericTree<Token> parse() throws Exception { 
        compile();
        characters();
+       keywords();
        return parseTree;
    }
 
     private void compile() throws Exception {
-        matchValue(new Token(Token.RESERVED, "COMPILER"));
+        matchValue("COMPILER");
         compiler = matchType(Token.IDENT);
+    }
+    
+    private void characters() throws Exception {
+        matchValue("CHARACTERS");
+        while (!verifyValue("KEYWORDS")) {
+            setDeclaration();
+            matchValue(".");
+        }
+    }
+    
+    private void keywords() throws Exception {
+        matchValue("KEYWORDS");
+        while (!verifyValue("TOKENS")) {
+            keywDeclaration();
+        }
     }
 
     private String matchType(int token) throws Exception {
@@ -57,9 +72,9 @@ public class CocoFileParser {
         else throw new MismatchedTokenException("Expected token type " + token + " , but found type " + currentToken.type() + " instead");
     }
     
-    private void matchValue(Token token) throws Exception {
-        if (token.value().equals(currentToken.value())) consume();
-        else throw new MismatchedTokenException("Expected token value " + token.value() + " , but found value " + currentToken.value() + " instead");
+    private void matchValue(String val) throws Exception {
+        if (verifyValue(val)) consume();
+        else throw new MismatchedTokenException("Expected token value " + val + " , but found value " + currentToken.value() + " instead");
     }
 
     private void consume() throws Exception {
@@ -68,9 +83,79 @@ public class CocoFileParser {
        
     }
 
-    private void characters() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    
+    
+    private boolean verifyValue(String val) {
+        return(val.equals(currentToken.value()));
     }
+
+    private void setDeclaration() throws Exception {
+        String identifier = matchType(Token.IDENT);
+        matchValue("=");
+        Set<Character> assigned = new LinkedHashSet();
+        addTo(assigned);
+        while (!verifyValue(".")) {
+            if (verifyValue("+")) {
+                matchValue("+");
+                addTo(assigned);
+            } else {
+                matchValue("-");
+                substractTo(assigned);
+            }
+        }
+        symbolTable.put(identifier, assigned);
+        
+    }
+
+    private void addTo(Set<Character> assigned) throws Exception {
+        if (currentToken.type() == Token.IDENT) {
+            Set assignation = (Set) symbolTable.get(currentToken.value());
+            if (assignation == null) {
+                throw new Exception("Identifier " + currentToken.value() + " must be defined previously");
+            } else {
+                assigned.addAll(assignation);
+            }
+        } else if (currentToken.type() == Token.STRING) {
+            String s = currentToken.value();
+            for (int i = 0; i < s.length(); i++) {
+                assigned.add(s.charAt(i));
+            }
+        } else if (currentToken.type() == Token.CHAR) {
+            assigned.add(currentToken.value().charAt(0));
+        } 
+        consume();
+        //return assigned;
+    }
+    
+    private void substractTo(Set<Character> assigned) throws Exception {
+        if (currentToken.type() == Token.IDENT) {
+            Set assignation = (Set) symbolTable.get(currentToken.value());
+            if (assignation == null) {
+                throw new Exception("Identifier " + currentToken.value() + " must be defined previously");
+            } else {
+                assigned.removeAll(assignation);
+            }
+        } else if (currentToken.type() == Token.STRING) {
+            String s = currentToken.value();
+            for (int i = 0; i < s.length(); i++) {
+                assigned.remove(s.charAt(i));
+            }
+        } else if (currentToken.type() == Token.CHAR) {
+            assigned.remove(currentToken.value().charAt(0));
+        } 
+        consume();
+        //return assigned;
+    }
+
+    private void keywDeclaration() throws Exception {
+        String identifier = matchType(Token.IDENT);
+        matchValue("=");
+        String asignee = matchType(Token.STRING);
+        matchValue(".");
+        symbolTable.put(identifier, asignee);
+    }
+
+    
    
    
    class ParserException extends Exception {
