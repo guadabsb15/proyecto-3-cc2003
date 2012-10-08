@@ -46,6 +46,7 @@ public class CocoFileParserTest {
         CocoFileParser instance = new CocoFileParser("cocofile.txt");
         GenericTree expResult = null;
         GenericTree result = instance.parse();
+        int a = 3;
         
     }
 }

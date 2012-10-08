@@ -5,6 +5,7 @@
 package src.scanner;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -28,18 +29,22 @@ public class CocoFileParser {
     
     private LinkedHashMap symbolTable;
     
+    private LinkedHashMap excepts;
+    
     public CocoFileParser(String filename) throws Exception {
         lexer = new CocoFileScanner(filename);
         lookAhead = lexer.getToken();
         consume();
         parseTree = new GenericTree();
         symbolTable = new LinkedHashMap();
+        excepts = new LinkedHashMap();
     }
     
    public GenericTree<Token> parse() throws Exception { 
        compile();
        characters();
        keywords();
+       tokens();
        return parseTree;
    }
 
@@ -60,6 +65,14 @@ public class CocoFileParser {
         matchValue("KEYWORDS");
         while (!verifyValue("TOKENS")) {
             keywDeclaration();
+        }
+    }
+    
+    private void tokens() throws Exception {
+        matchValue("TOKENS");
+        while (!verifyValue("PRODUCTIONS")) {
+            tokenDecl();
+            matchType(Token.POINT);
         }
     }
 
@@ -115,17 +128,131 @@ public class CocoFileParser {
             } else {
                 assigned.addAll(assignation);
             }
+            consume();
+        } else if (currentToken.type() == Token.RESERVED) {
+            String s = currentToken.value();
+            if (s.equals("CHR")) {
+                matchValue("CHR");
+                charAdd(assigned);
+            } 
+            //consume();
         } else if (currentToken.type() == Token.STRING) {
             String s = currentToken.value();
             for (int i = 0; i < s.length(); i++) {
                 assigned.add(s.charAt(i));
             }
+            consume();
         } else if (currentToken.type() == Token.CHAR) {
-            assigned.add(currentToken.value().charAt(0));
+            charAdd(assigned);
+            
         } 
-        consume();
+        //consume();
         //return assigned;
     }
+    
+    private void charAdd(Set<Character> assigned) throws Exception {
+        char lower = (char) 1;
+        if (currentToken.type() == Token.CHAR) {
+            lower = currentToken.value().charAt(0);
+            assigned.add(lower);
+            consume();
+        } else if (currentToken.type() == Token.LPAREN) {
+            matchType(Token.LPAREN);
+            try {
+                int code = Integer.parseInt(matchType(Token.NUMBER));
+                lower = (char) code;
+                assigned.add(lower);
+                matchType(Token.RPAREN);
+            } catch (Exception e) {
+                throw new MismatchedTokenException("Expected a number");
+            }
+            
+        }
+        
+        if (lookAhead.type() == Token.POINT) {
+            matchType(Token.POINT);
+            
+            matchType(Token.POINT);
+            char upper = (char) 1;
+            
+            if (currentToken.type() == Token.CHAR) {
+                upper = currentToken.value().charAt(0);
+                consume();
+            } else if (currentToken.type() == Token.RESERVED) {
+                matchValue("CHR");
+                matchValue("(");
+                try {
+                    upper = (char) Integer.parseInt(matchType(Token.NUMBER));
+                    matchValue(")");
+                } catch (Exception e) {
+                    throw new MismatchedTokenException("Expected a number");
+                }
+            
+            }
+            if ((int)upper >= (int) lower) {
+                for (int i = (int)lower; i <= (int)upper; i++) {
+                    assigned.add((char)i);
+                }
+            } else {
+                throw new MismatchedTokenException("Expected a higher character");
+            }
+            
+      }
+                  
+    }
+    
+    private void charSub(Set<Character> assigned) throws Exception {
+        char lower = (char) 1;
+        if (currentToken.type() == Token.CHAR) {
+            lower = currentToken.value().charAt(0);
+            assigned.remove(lower);
+            consume();
+        } else if (currentToken.type() == Token.LPAREN) {
+            matchType(Token.LPAREN);
+            try {
+                int code = Integer.parseInt(matchType(Token.NUMBER));
+                lower = (char) code;
+                assigned.remove(lower);
+                matchType(Token.RPAREN);
+            } catch (Exception e) {
+                throw new MismatchedTokenException("Expected a number");
+            }
+            
+        }
+        
+        if (lookAhead.type() == Token.POINT) {
+            matchType(Token.POINT);
+            
+            matchType(Token.POINT);
+            char upper = (char) 1;
+            
+            if (currentToken.type() == Token.CHAR) {
+                upper = currentToken.value().charAt(0);
+                consume();
+            } else if (currentToken.type() == Token.RESERVED) {
+                matchValue("CHR");
+                matchValue("(");
+                try {
+                    upper = (char) Integer.parseInt(matchType(Token.NUMBER));
+                    matchValue(")");
+                } catch (Exception e) {
+                    throw new MismatchedTokenException("Expected a number");
+                }
+            
+            }
+            if ((int)upper >= (int) lower) {
+                for (int i = (int)lower; i <= (int)upper; i++) {
+                    assigned.remove((char)i);
+                }
+            } else {
+                throw new MismatchedTokenException("Expected a higher character");
+            }
+            
+      }
+                  
+    }
+    
+    
     
     private void substractTo(Set<Character> assigned) throws Exception {
         if (currentToken.type() == Token.IDENT) {
@@ -135,15 +262,25 @@ public class CocoFileParser {
             } else {
                 assigned.removeAll(assignation);
             }
+            consume();
+        } else if (currentToken.type() == Token.RESERVED) {
+            String s = currentToken.value();
+            if (s.equals("CHR")) {
+                matchValue("CHR");
+                charSub(assigned);
+            } 
+            
+            //consume();
         } else if (currentToken.type() == Token.STRING) {
             String s = currentToken.value();
             for (int i = 0; i < s.length(); i++) {
                 assigned.remove(s.charAt(i));
             }
+            consume();
         } else if (currentToken.type() == Token.CHAR) {
-            assigned.remove(currentToken.value().charAt(0));
+            charSub(assigned);
         } 
-        consume();
+        
         //return assigned;
     }
 
@@ -153,6 +290,83 @@ public class CocoFileParser {
         String asignee = matchType(Token.STRING);
         matchValue(".");
         symbolTable.put(identifier, asignee);
+    }
+
+    private void tokenDecl() throws Exception {
+        String identifier = matchType(Token.IDENT);
+        String regex;
+        if (verifyValue("=")) {
+            matchType(Token.EQUAL);
+            regex = tokenExpr();
+            String k = "";
+        }
+        
+    }
+
+    private String tokenExpr() throws Exception {
+        String expr = "";
+        expr = expr + tokenTerm();
+        while (verifyValue("|")) {
+            expr = expr + matchType(Token.BAR);
+            expr = expr + tokenTerm();
+        }
+        return expr;
+    }
+
+    private String tokenTerm() throws Exception {
+        String expr = "";
+        expr = expr + "(" +  tokenFactor() + ")";
+        while (!verifyValue("EXCEPT KEYWORDS") && !verifyValue(".") && (currentToken.type()!= Token.RPAREN) && (currentToken.type()!= Token.SQRBRACKET) && (currentToken.type()!= Token.CURBRACKET)) {
+            expr = expr + tokenFactor();
+        }
+        return expr;
+    }
+
+    private String tokenFactor() throws Exception {
+        if (verifyValue("(")) {
+            matchType(Token.LPAREN);
+            String expr = "(" + tokenExpr() + ")";
+            matchType(Token.RPAREN);
+            return expr;
+        } else if (verifyValue("[")) {
+            matchType(Token.SQLBRACKET);
+            String expr = tokenExpr();
+            matchType(Token.SQRBRACKET);
+            return expr;
+        } else if (verifyValue("{")) {
+            matchType(Token.CULBRACKET);
+            String expr = "(" + tokenExpr() + ")*";
+            matchType(Token.CURBRACKET);
+            return expr;
+        } else if (currentToken.type() == Token.IDENT) {
+            Set<Character> s = (Set<Character>) symbolTable.get(matchType(Token.IDENT));
+            if (s == null) {
+                throw new Exception("Invalid identifier");
+            } else {
+                Iterator it = s.iterator();
+                String expr = "";
+                while (it.hasNext()) expr = expr + it.next().toString() + "|";
+                return expr.substring(0, expr.length()-1);    
+            }
+        } else if (currentToken.type() == Token.STRING) {
+            return matchType(Token.STRING);
+        } else if (currentToken.type() == Token.CHAR) {
+            return matchType(Token.CHAR);
+        } else throw new Exception ("Invalid token declaration");
+    }
+
+    
+
+    private void makeCharSet(Set<Character> assigned) {
+        assigned.add(currentToken.value().charAt(0));
+    }
+
+    public void setCurrent(Token t) {
+        currentToken = t;
+    }
+    
+    public void setLA(Token t) {
+        lookAhead = t;
     }
 
     

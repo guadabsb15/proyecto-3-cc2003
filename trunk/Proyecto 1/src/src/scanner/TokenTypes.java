@@ -42,7 +42,9 @@ public interface TokenTypes {
     
     public static final int CURBRACKET = 15;
     
-    public static final int CULBRACKET = 15;
+    public static final int CULBRACKET = 16;
+    
+    public static final int BAR = 17;
     
     public static final Token EOF_TOKEN = new Token(EOF, "-1");
     
