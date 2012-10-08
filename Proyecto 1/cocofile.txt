@@ -2,7 +2,8 @@ COMPILER Ejemplo
 
 CHARACTERS
 
-letter = "abcdefghijklmnopqrstuvwxyz".
+letter = "ABCDE" - CHR(65).
+chars = CHR(65) .. CHR(68).
 
 KEYWORDS
 
@@ -10,5 +11,7 @@ if="if".
 while="while".
 
 TOKENS
+
+id = letter{letter}.
 
 PRODUCTIONS

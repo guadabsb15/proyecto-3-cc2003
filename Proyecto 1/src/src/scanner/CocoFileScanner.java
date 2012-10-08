@@ -52,7 +52,7 @@ public class CocoFileScanner {
                 return identifier();
             } else if (current == '"') {
                 return string();
-            } else if (current == '\\')  {
+            } else if (current == '\'')  {
                 return character();
             } else {
                 if (currentCharacter == -1) return (new Token(Token.EOF, "-1"));
@@ -89,6 +89,7 @@ public class CocoFileScanner {
         else if (str.equals("COMPILER")) return (new Token(Token.RESERVED, str));
         else if (str.equals("KEYWORDS")) return (new Token(Token.RESERVED, str));
         else if (str.equals("TOKENS")) return (new Token(Token.RESERVED, str));
+        else if (str.equals("CHR")) return (new Token(Token.RESERVED, str));
         else return (new Token(Token.IDENT, s.toString()));
 
     }
@@ -110,13 +111,13 @@ public class CocoFileScanner {
     private Token character() throws Exception {
         StringBuilder s = new StringBuilder();
         
-        match('\\');
+        match('\'');
         
         s.append((char)currentCharacter);
         
         consume();
         
-        match('\\');
+        match('\'');
         
         return (new Token(Token.CHAR, s.toString()));
         
@@ -130,11 +131,12 @@ public class CocoFileScanner {
         else if (current == '=') return (new Token(Token.EQUAL, Character.toString(current)));
         else if (current == '+') return (new Token(Token.PLUS, Character.toString(current)));
         else if (current == '-') return (new Token(Token.MINUS, Character.toString(current)));
-        else if (current == '.') return (new Token(Token.MINUS, Character.toString(current)));
+        else if (current == '.') return (new Token(Token.POINT, Character.toString(current)));
         else if (current == '[') return (new Token(Token.SQLBRACKET, Character.toString(current)));
         else if (current == ']') return (new Token(Token.SQRBRACKET, Character.toString(current)));
         else if (current == '{') return (new Token(Token.CULBRACKET, Character.toString(current)));
         else if (current == '}') return (new Token(Token.CURBRACKET, Character.toString(current)));
+        else if (current == '|') return (new Token(Token.BAR, Character.toString(current)));
         return null;
     }
     
