@@ -4,6 +4,7 @@
  */
 package src.automatons;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ public class State {
      * Holds the state that compose this particular state, if applicable
      */
     private Set<State> set = null;
+    
+    private String attached;
     
      /**
      * Represents an initial state
@@ -52,6 +55,23 @@ public class State {
      */
     public State(Set<State> s) {
         set = s;
+        //attached = s.attached();
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public String attached() {
+        return attached;
+    }
+    
+    /**
+     * 
+     * @param s 
+     */
+    public void setAttached(String s) {
+        attached = s;
     }
     
     /**
@@ -69,6 +89,8 @@ public class State {
     public Set<State> set() {
         return set;
     }
+    
+    
     
     /**
      * Returns the state wrapped in a set

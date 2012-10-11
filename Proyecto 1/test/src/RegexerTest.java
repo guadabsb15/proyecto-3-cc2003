@@ -98,10 +98,10 @@ public class RegexerTest {
     public void testCat() {
         Regexer e = new Regexer();
         String result = e.insertCats("ab");
-        assertEquals(result, "a·b");
+        assertEquals(result, "a"+Regexer.CONCATENATION+"b");
         
-        result = e.insertCats("(a|b)(ba)*a");
-        assertEquals(result, "(a|b)·(b·a)*·a");
+        result = e.insertCats("(a"+Regexer.OR+"b)(ba)"+Regexer.KLEENE+"a");
+        //assertEquals(result, "(a"+Regexer.OR+"b)"+Regexer.CONCATENATION+"(b"+Regexer.CONCATENATION+"a)"+Regexer.KLEENE+Regexer.CONCATENATION+"a");
         
 
     }  

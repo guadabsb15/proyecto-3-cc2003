@@ -44,6 +44,15 @@ public class NFA extends Automaton {
             }
         }  
     }
+    
+    @Override
+    public void absorb(Automaton other) {
+        Iterator s = other.states().iterator();
+        while (s.hasNext()) {
+            this.addState((State) s.next());
+        } 
+        absorbTransitions(other.transition());
+    }
        
     /**
      * Epsilon closure function
@@ -195,7 +204,11 @@ public class NFA extends Automaton {
                     }
                     Iterator it = U.iterator();
                     while (it.hasNext()) {
-                        if (super.accepting().contains(it.next())) accepting = true;
+                        State current = (State) it.next();
+                        if (super.accepting().contains(current)) {
+                            accepting = true;
+                            uState.setAttached(current.attached());
+                        }
                     }
                     if (accepting) dfa.addAcceptingState(uState);
                     transitions.put(new Pair<State, Symbol>(tState, a), uState.toSet());
@@ -210,6 +223,8 @@ public class NFA extends Automaton {
         dfa.setSymbols(super.symbols);
         return dfa;
     }
+    
+    
     
     @Override
     public Automaton minimize() {

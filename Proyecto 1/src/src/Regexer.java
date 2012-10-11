@@ -1,3 +1,4 @@
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -53,8 +54,11 @@ public class Regexer {
     
     public static String POSCLOSURE = "+";
     
-    public static String CONCATENATION = "·"; 
+    public static String CONCATENATION =  "·"; 
    
+    public static String LPAREN = "("; 
+    public static String RPAREN = ")"; 
+    
     /**
      * Tokens of the expression to be evaluated
      */
@@ -318,7 +322,7 @@ public class Regexer {
      * @return 
      */
     public boolean isLeftParentheses(Object s) {
-        return s.toString().equals("(");
+        return s.toString().equals(LPAREN);
     }
     
     /**
@@ -327,7 +331,7 @@ public class Regexer {
      * @return 
      */
     public boolean isRightParentheses(Object s) {
-        return s.toString().equals(")");
+        return s.toString().equals(RPAREN);
     }
     
     /**

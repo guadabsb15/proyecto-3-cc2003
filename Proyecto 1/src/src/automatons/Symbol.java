@@ -70,7 +70,7 @@ public class Symbol {
     
     @Override
     public String toString() {
-        return Character.toString(id);
+        return "" + id;
     }
 
     @Override

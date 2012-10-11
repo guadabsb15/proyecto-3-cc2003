@@ -102,7 +102,6 @@ public class NFABuilderTest {
         assertEquals(result, true);
         assertEquals(dfa.simulate(""), true);
         
-        
         regex = "a|ε";
         nfa = instance.build(regex);
         dfa = nfa.toDfa();

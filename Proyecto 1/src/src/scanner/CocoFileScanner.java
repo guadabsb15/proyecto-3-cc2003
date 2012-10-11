@@ -90,6 +90,7 @@ public class CocoFileScanner {
         else if (str.equals("KEYWORDS")) return (new Token(Token.RESERVED, str));
         else if (str.equals("TOKENS")) return (new Token(Token.RESERVED, str));
         else if (str.equals("CHR")) return (new Token(Token.RESERVED, str));
+        else if (str.equals("IGNORE")) return (new Token(Token.RESERVED, str));
         else return (new Token(Token.IDENT, s.toString()));
 
     }
