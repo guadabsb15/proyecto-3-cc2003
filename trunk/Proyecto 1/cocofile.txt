@@ -1,9 +1,9 @@
-COMPILER Ejemplo
+COMPILER ejemplo
 
 CHARACTERS
 
-letter = "ABCDE" - CHR(65).
-chars = CHR(65) .. CHR(68).
+letter = "ab".
+special = CHR(10) + CHR(11).
 
 KEYWORDS
 

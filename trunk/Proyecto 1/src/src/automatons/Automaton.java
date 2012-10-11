@@ -116,6 +116,14 @@ public abstract class Automaton {
         states.add(s);
     }
     
+    public void attach(String s) {
+        Iterator i = accepting.iterator();
+        while (i.hasNext()) {
+            ((State)i.next()).setAttached(s);
+        }
+        
+    }
+    
     /**
      * Adds a transition to the automaton
      * @param p
@@ -330,6 +338,14 @@ public abstract class Automaton {
      */
     public void removeKey(Pair<State, Symbol> k) {
         transition.remove(k);
+    }
+    
+    public void absorbSymbols(Automaton other) {
+        symbols.addAll(other.symbols());
+    }
+    
+    public void absorbAccepting(Automaton other) {
+        accepting.addAll(other.accepting());
     }
     
     /**

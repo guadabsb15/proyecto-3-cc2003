@@ -65,7 +65,7 @@ public class NFABuilder {
     public Automaton build(String regex) throws Exception {
         nfa = null;
         evalStack = new Stack<Automaton>();
-        index = 0;
+        //index = 0;
         
         try {
             regexer.evaluate(regex);
@@ -183,8 +183,6 @@ public class NFABuilder {
         } catch (Exception e) {
             throw e;
         }
-        
-        
         
     }
     

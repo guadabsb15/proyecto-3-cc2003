@@ -23,11 +23,17 @@ public class DFA extends Automaton  {
      */
     public final static State deadState = new State("dead");
     
+    private State lastState;
+    
     /**
      * Class constructor
      */
     public DFA() {
         super();
+    }
+    
+    public State lastState() {
+        return lastState;
     }
     
     /**
@@ -79,6 +85,7 @@ public class DFA extends Automaton  {
             
         }
         
+        lastState = s;
         if (super.accepting.contains(s)) {
             
             return true;
