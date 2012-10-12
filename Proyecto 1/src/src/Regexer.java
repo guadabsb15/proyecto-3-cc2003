@@ -1,4 +1,5 @@
 
+/**
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -36,16 +37,40 @@ public class Regexer {
      */
     private String OPERATORS;
    
-    /**
-     * Symbols used to group expresions
-     */
-    private String GROUPERS = "()";
+    
     
     /**
      * Symbols 
      */
     private String OPERANDS;
     
+    public static final char OR = (char) 65529;
+    public static Symbol OR_SYM = new Symbol(OR);
+    
+    public static final char KLEENE = (char) 65530;
+    public static Symbol KLEENE_SYM = new Symbol(KLEENE);
+    
+    public static final char ZERONE = (char) 65531;
+    public static Symbol ZERONE_SYM = new Symbol(ZERONE);
+    
+    public static final char POSCLOSURE = (char) 65532;
+    public static Symbol POSCLOSURE_SYM = new Symbol(POSCLOSURE);
+    
+    public static final char CONCATENATION = (char) 65533; 
+    public static Symbol CONCATENATION_SYM = new Symbol(CONCATENATION);
+    
+    public static final char LPAREN = (char) 65527; 
+    public static Symbol LPAREN_SYM = new Symbol(LPAREN);
+    
+    public static final char RPAREN = (char) 65528; 
+    public static Symbol RPAREN_SYM = new Symbol(RPAREN);
+    
+    /**
+     * Symbols used to group expresions
+     */
+    private String GROUPERS = "" + LPAREN + RPAREN;
+    
+    /**
     public static String OR = "|";
     
     public static String KLEENE = "*";
@@ -54,11 +79,8 @@ public class Regexer {
     
     public static String POSCLOSURE = "+";
     
-    public static String CONCATENATION =  "·"; 
-   
-    public static String LPAREN = "("; 
-    public static String RPAREN = ")"; 
-    
+    public static String CONCATENATION = "·"; 
+   */
     /**
      * Tokens of the expression to be evaluated
      */
@@ -83,7 +105,7 @@ public class Regexer {
     
     public Regexer() {
         
-        OPERATORS = KLEENE+OR+POSCLOSURE+ZERONE+CONCATENATION;
+        OPERATORS = "" + KLEENE+OR+POSCLOSURE+ZERONE+CONCATENATION;
         tokenizer = new Tokenizer();
         stack = new Stack<Symbol>();
         evalStack = new Stack<String>();
@@ -200,17 +222,17 @@ public class Regexer {
      */
     private void makeTree() {
         if (getArity(stack.peek()) == 1) {
-            if (stack.peek().equals(ZERONE)) {
+            if (stack.peek().toString().charAt(0) == (ZERONE)) {
                 BinaryTree b = new BinaryTree(new Symbol(OR), queue.pop(), new BinaryTree(EMPTY_STR));
                 queue.push(b);
                 stack.pop();
-            } else if (stack.peek().equals(POSCLOSURE)) {
+            } else if (stack.peek().toString().charAt(0) == (POSCLOSURE)) {
                 BinaryTree op = queue.pop();
                 BinaryTree ope = new BinaryTree(op);
                 BinaryTree b = new BinaryTree(new Symbol(CONCATENATION), op, new BinaryTree(new Symbol(KLEENE), ope, null));
                 queue.push(b);
                 stack.pop();
-            } else if (stack.peek().equals(KLEENE)) {
+            } else if (stack.peek().toString().charAt(0) == (KLEENE)) {
                 BinaryTree op = queue.pop();
                 BinaryTree b = new BinaryTree(stack.pop(), op, null);
                 queue.push(b);
@@ -238,7 +260,7 @@ public class Regexer {
      * @return 
      */
     public int getArity(Object operator) {
-        if (operator.toString().equals(ZERONE) || operator.toString().equals(POSCLOSURE) || operator.toString().equals(KLEENE)) {
+        if ( ((int)operator.toString().charAt(0) == ((int)ZERONE)) || ((int)operator.toString().charAt(0) == ((int)POSCLOSURE)) || ((int)operator.toString().charAt(0) == ((int)KLEENE))) {
             return 1;
         } else {
             return 2;
@@ -252,13 +274,13 @@ public class Regexer {
      * @return 
      */
     public int getPrecedence(Object operator) {
-        if (operator.toString().equals(OR)) {
+        if ((int)operator.toString().charAt(0) == ((int)OR)) {
             return 1;
-        } else if ( operator.toString().equals(POSCLOSURE) ){
+        } else if ( (int)operator.toString().charAt(0) == (int)POSCLOSURE){
             return 4;
-        } else if (operator.toString().equals(CONCATENATION)) {
+        } else if ((int)operator.toString().charAt(0) == (int)CONCATENATION) {
             return 3;
-        } else if (operator.toString().equals(ZERONE)) {
+        } else if ((int)operator.toString().charAt(0) == (int)ZERONE) {
             return 4;
         } else {
             return 5;
@@ -322,7 +344,7 @@ public class Regexer {
      * @return 
      */
     public boolean isLeftParentheses(Object s) {
-        return s.toString().equals(LPAREN);
+        return s.toString().charAt(0) == LPAREN;
     }
     
     /**
@@ -331,7 +353,7 @@ public class Regexer {
      * @return 
      */
     public boolean isRightParentheses(Object s) {
-        return s.toString().equals(RPAREN);
+        return s.toString().charAt(0) == RPAREN;
     }
     
     /**
