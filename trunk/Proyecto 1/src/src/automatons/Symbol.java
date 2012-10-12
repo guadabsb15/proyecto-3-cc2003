@@ -84,7 +84,7 @@ public class Symbol {
     public boolean equals(Object o) {
         if (o.getClass().equals(this.getClass())) {
             Symbol other = (Symbol) o;
-            return other.id() == (this.id);
+            return (int) other.id() == ((int)this.id);
         } else if (o.getClass().equals("String".getClass())) {
             String s = (String) o;
             return id == s.charAt(0);

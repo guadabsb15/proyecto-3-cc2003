@@ -4,6 +4,7 @@
  */
 package src.automatons;
 
+import src.Regexer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -57,6 +58,9 @@ public class SymbolTest {
         Symbol instance = new Symbol("|");
         boolean result = instance.equals("|");
         assertEquals(true, result);
+        
+        instance = new Symbol(Regexer.CONCATENATION);
+        assertEquals(true, instance.equals(Regexer.CONCATENATION_SYM));
 
     }
 }

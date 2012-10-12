@@ -88,7 +88,7 @@ public class NFABuilder {
                 
                 else if (regexer.isOperator(current)) {
                     
-                    if (current.equals(Regexer.OR)) {
+                    if (current.equals(Regexer.OR_SYM)) {
                         Automaton op1 = evalStack.pop();
                         Automaton op2 = evalStack.pop();
                         
@@ -124,7 +124,7 @@ public class NFABuilder {
                         evalStack.push(newAutomaton);
                         
                         
-                    } else if (current.equals(Regexer.KLEENE)) {
+                    } else if (current.equals(Regexer.KLEENE_SYM)) {
                         
                         Automaton op1 = evalStack.pop(); 
                         
@@ -155,7 +155,7 @@ public class NFABuilder {
                         
                         evalStack.push(newAutomaton);
                         
-                    } else if (current.equals(Regexer.CONCATENATION)) {
+                    } else if (current.equals(Regexer.CONCATENATION_SYM)) {
              
                         Automaton op2 = evalStack.pop();
                         Automaton op1 = evalStack.pop();
