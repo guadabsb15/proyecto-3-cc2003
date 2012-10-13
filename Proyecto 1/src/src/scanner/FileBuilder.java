@@ -34,10 +34,10 @@ public class FileBuilder {
     private BufferedWriter out;
     private Map<State, String> mapping;
     
-    public FileBuilder(String filename) throws Exception {
+    public FileBuilder(String readName, String writeName) throws Exception {
         try {
-            //out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8"));
-            parser = new CocoFileParser(filename);
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(writeName), "UTF-8"));
+            parser = new CocoFileParser(readName);
             parser.parse();
         } catch(Exception e) {
             throw e; // new Exception("Error al crear el archivo");
@@ -52,7 +52,7 @@ public class FileBuilder {
     
     public void buildAutomaton() throws Exception {
         Map<String, String> keywordsTable = parser.keywordsTable();
-        Map<String, Set<Character>> ignoreTable = parser.ignoreTable();
+        Map<String, String> ignoreTable = parser.ignoreTable();
         Map<String, String> tokensTable = parser.tokensTable();
         ArrayList<String> excepts = parser.excepts();
         
@@ -60,6 +60,7 @@ public class FileBuilder {
         
         createSubAutomata(keywordsTable, mapping, automata);
         createSubAutomata(tokensTable, mapping, automata);
+        createSubAutomata(ignoreTable, mapping, automata);
         
         State initial = new State("start");
         nfa.changeInitialState(initial);
