@@ -3,6 +3,7 @@ COMPILER ejemplo
 CHARACTERS
 
 letter = "ab".
+operators = "-+".
 special = CHR(10) + CHR(11).
 
 KEYWORDS
@@ -13,5 +14,8 @@ while="while".
 TOKENS
 
 id = letter{letter}.
+sum = letter(operators).
+
+IGNORE " ".
 
 PRODUCTIONS

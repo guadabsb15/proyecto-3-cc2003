@@ -147,8 +147,8 @@ public class Regexer {
      */
     public BinaryTree<Symbol> evaluate(String expression) throws Exception {
         symbols = new LinkedHashSet();
-        expression = expression.trim();
-        expression = expression.replaceAll(" ", "");
+        //expression = expression.trim();
+        //expression = expression.replaceAll(" ", "");
         expression = insertCats(expression);
         if (expression.equals("")) expression = Regexer.EMPTY_STR.toString();
         getTokens(expression);  
@@ -166,7 +166,11 @@ public class Regexer {
      * @param expr 
      */
     private void getTokens(String expr) {
-        tokens = tokenizer.returnTokens(expr, OPERATORS + GROUPERS);
+        //tokens = tokenizer.returnTokens(expr, OPERATORS + GROUPERS);
+        tokens = new ArrayList();
+        for (int i = 0; i < expr.length(); i++) {
+            tokens.add(""+expr.charAt(i));
+        }
     }
 
     /**

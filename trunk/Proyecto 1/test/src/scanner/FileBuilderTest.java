@@ -43,13 +43,15 @@ public class FileBuilderTest {
     @Test
     public void testBuildAutomaton() throws Exception {
         System.out.println("buildAutomaton");
-        FileBuilder instance = new FileBuilder("cocofile.txt");
+        FileBuilder instance = new FileBuilder("cocofile.txt", "write.java");
         instance.buildAutomaton();
         DFA dfa = instance.dfa();
         //dfa.writeFile("P2.txt");
         System.out.println(dfa.simulate("while") + " Type: " + (dfa.lastState().attached()));
         System.out.println(dfa.simulate("if")+ " Type: " + (dfa.lastState().attached()));
         System.out.println(dfa.simulate("aab") + " Type: " + (dfa.lastState().attached()));
+        System.out.println(dfa.simulate(" ") + " Type: " + (dfa.lastState().attached()));
+        System.out.println(dfa.simulate("a+") + " Type: " + (dfa.lastState().attached()));
         System.out.println(dfa.simulate("aabg") + " Type: " + (dfa.lastState().attached()));
     }
 

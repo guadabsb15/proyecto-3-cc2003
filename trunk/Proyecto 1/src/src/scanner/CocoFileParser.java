@@ -73,8 +73,15 @@ public class CocoFileParser {
        return keywordsTable;
    }
    
-   public Map<String, Set<Character>> ignoreTable() {
-       return ignoreTable;
+   public Map<String, String> ignoreTable() {
+       Iterator i = ignoreTable.get("IGNORE").iterator();
+       String s = "";
+       while (i.hasNext()) {
+           s = s + (i.next()) + ((char)Regexer.OR);
+       }
+       Map<String, String> ignoreMap = new LinkedHashMap<String, String>(1);
+       ignoreMap.put("IGNORE", s.substring(0, s.length()-1));
+       return ignoreMap;
    }
 
     private void compile() throws Exception {

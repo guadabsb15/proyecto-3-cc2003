@@ -62,13 +62,13 @@ public class DFA extends Automaton  {
      */
     @Override
     public boolean simulate(String input) {
-        input = input.replace(" ", "");
+        //input = input.replace(" ", "");
         State s = super.initial_state;
         Symbol c;
         
         while (input.length() >= 1) {
             
-            if (input.trim().equals("")) {
+            if (input.equals("")) {
                 c = Regexer.EMPTY_STR;
             } else {
                 c = new Symbol(input.charAt(0));
