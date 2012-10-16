@@ -8,18 +8,18 @@ package src.scanner;
  *
  * @author asus
  */
-class Token implements TokenTypes {
+public class Token implements TokenTypes {
     
-    private int type;
+    private String type;
     
     private String value;
     
-    public Token(int nm, String val) {
+    public Token(String nm, String val) {
         type = nm;
         value = val;
     }
     
-    public void changeName(int n) {
+    public void changeName(String n) {
         type = n;
     }
     
@@ -27,7 +27,7 @@ class Token implements TokenTypes {
         value = v;
     }
     
-    public int type() {
+    public String type() {
         return type;
     }
     
@@ -36,9 +36,10 @@ class Token implements TokenTypes {
     }
     
     public boolean equals(Token other) {
-        return (type == other.type()) && (value.equals(other.value()));
+        return (type.equals(other.type())) && (value.equals(other.value()));
     }
     
+    @Override
     public String toString() {
         return type + ", " + value;
     }

@@ -134,6 +134,9 @@ public abstract class Automaton {
         if (!states.contains(p.returnFirst())) {
             throw new Exception("Reference to non-existant state");
         }
+        if (!symbols.contains(p.returnSecond())) {
+            symbols.add(p.returnSecond());
+        }
         if (transition.containsKey(p)) {
             Set<State> value = transition.get(p);
             value.add(s);

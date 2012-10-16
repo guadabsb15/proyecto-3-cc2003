@@ -26,20 +26,7 @@ public class State {
     
     private String attached;
     
-     /**
-     * Represents an initial state
-     */
-    public final static int INITIAL_STATE = 1;
-    
-    /**
-     * Represents a state that is not initial or accepting
-     */
-    public final static int NORMAL_STATE = 2;
-    
-    /**
-     * Represents an accepting state
-     */
-    public final static int ACCEPTING_STATE = 3;
+
     
     /**
      * Class constructor from an id

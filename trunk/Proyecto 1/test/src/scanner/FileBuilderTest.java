@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import src.automatons.DFA;
+import src.ProyectoLexer;
 
 /**
  *
@@ -43,7 +44,7 @@ public class FileBuilderTest {
     @Test
     public void testBuildAutomaton() throws Exception {
         System.out.println("buildAutomaton");
-        FileBuilder instance = new FileBuilder("cocofile.txt", "write.java");
+        FileBuilder instance = new FileBuilder("cocofile", "ProyectoLexer", "prueba");
         instance.buildAutomaton();
         DFA dfa = instance.dfa();
         //dfa.writeFile("P2.txt");
@@ -51,8 +52,20 @@ public class FileBuilderTest {
         System.out.println(dfa.simulate("if")+ " Type: " + (dfa.lastState().attached()));
         System.out.println(dfa.simulate("aab") + " Type: " + (dfa.lastState().attached()));
         System.out.println(dfa.simulate(" ") + " Type: " + (dfa.lastState().attached()));
-        System.out.println(dfa.simulate("a+") + " Type: " + (dfa.lastState().attached()));
+        System.out.println(dfa.simulate("a+b") + " Type: " + (dfa.lastState().attached()));
         System.out.println(dfa.simulate("aabg") + " Type: " + (dfa.lastState().attached()));
+        
+        instance.writeFile();
+        ProyectoLexer generado = new ProyectoLexer();
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        System.out.println(generado.getToken());
+        int a = 1;
     }
 
     /**
