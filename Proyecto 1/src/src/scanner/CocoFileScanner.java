@@ -5,6 +5,7 @@
 package src.scanner;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.Set;
  *
  * @author asus
  */
-public class CocoFileScanner {
+public class CocoFileScanner implements Scanner {
     
     private BufferedReader reader;
     
@@ -25,8 +26,11 @@ public class CocoFileScanner {
     
     private Set<Character> ignore;
     
+    private int line;
+    
     public CocoFileScanner(String filename) throws Exception {
         try {
+            line = 1;
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF-8")); 
             consume();
             tokens = new ArrayList();
@@ -39,12 +43,34 @@ public class CocoFileScanner {
         }
     }
     
+    public CocoFileScanner(File file) throws Exception {
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")); 
+            consume();
+            tokens = new ArrayList();
+            ignore = new LinkedHashSet();
+            ignore.add(' ');
+            ignore.add('\r');
+            ignore.add('\n');
+            ignore.add((char) 9);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    
+    public int line() {
+        return line;
+    }
     
     
+    @Override
     public Token getToken() throws Exception {
         try {
             
-            while (ignore.contains((char)currentCharacter)) consume();
+            while (ignore.contains((char)currentCharacter)) {
+                if (currentCharacter == '\n') line++;
+                consume();
+            }
             char current = (char) currentCharacter;
             if (Character.isDigit(current)) {
                 return number();
@@ -114,13 +140,19 @@ public class CocoFileScanner {
         
         match('\'');
         
-        s.append((char)currentCharacter);
+        if ( (char) currentCharacter != '\\') {
+            s.append((char)currentCharacter);
+            consume();
+            match('\'');
+            return (new Token(Token.CHAR, s.toString()));
+        } else {
+            match('\\');
+            s.append((char)currentCharacter);
+            match('\'');
+            return (new Token(Token.CHAR, s.toString()));
+        }
         
-        consume();
         
-        match('\'');
-        
-        return (new Token(Token.CHAR, s.toString()));
         
     }
     
@@ -138,6 +170,7 @@ public class CocoFileScanner {
         else if (current == '{') return (new Token(Token.CULBRACKET, Character.toString(current)));
         else if (current == '}') return (new Token(Token.CURBRACKET, Character.toString(current)));
         else if (current == '|') return (new Token(Token.BAR, Character.toString(current)));
+        else if (current == '\n') return (new Token(Token.NEWLINE, Character.toString('\n')));
         return null;
     }
     

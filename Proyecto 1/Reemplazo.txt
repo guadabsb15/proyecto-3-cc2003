@@ -1,0 +1,30 @@
+COMPILER ejemplo
+
+CHARACTERS
+
+letter = 'A' .. 'Z' + 'a' .. 'z'.
+digit = "0123456789".
+anyButQuote = CHR(0) .. CHR(255) - CHR(34). 
+anyButApostrophe = CHR(0) .. CHR(255) - CHR(39). 
+
+KEYWORDS
+
+TOKENS
+
+IDENT = letter {letter | digit}.
+NUMBER = digit{digit}.
+STRING = '"' {anyButQuote} '"'.
+CHAR = CHR(39) anyButApostrophe CHR(39).
+RESERVED = "CHARACTERS" | "COMPILER" | "KEYWORDS" | "TOKENS" | "IGNORE" | "CHR".
+LPAREN = "(".
+RPAREN = ")". 
+EQUAL = "=".
+IGNORE = " " | CHR(10) | CHR(13).
+PLUS = "+".
+MINUS = "-".
+SQRBRACKET = "]".
+SQLBRACKET = "[".
+CURBRACKET = "}".
+CULBRACKET = "{".
+
+PRODUCTIONS

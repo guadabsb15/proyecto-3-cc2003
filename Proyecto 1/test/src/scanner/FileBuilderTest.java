@@ -4,6 +4,7 @@
  */
 package src.scanner;
 
+import java.io.File;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,7 +45,7 @@ public class FileBuilderTest {
     @Test
     public void testBuildAutomaton() throws Exception {
         System.out.println("buildAutomaton");
-        FileBuilder instance = new FileBuilder("cocofile", "ProyectoLexer", "prueba");
+        FileBuilder instance = new FileBuilder(new File("cocofile.txt"), new File("ProyectoLexer.txt"));
         instance.buildAutomaton();
         DFA dfa = instance.dfa();
         //dfa.writeFile("P2.txt");
@@ -56,15 +57,7 @@ public class FileBuilderTest {
         System.out.println(dfa.simulate("aabg") + " Type: " + (dfa.lastState().attached()));
         
         instance.writeFile();
-        ProyectoLexer generado = new ProyectoLexer();
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
-        System.out.println(generado.getToken());
+
         int a = 1;
     }
 

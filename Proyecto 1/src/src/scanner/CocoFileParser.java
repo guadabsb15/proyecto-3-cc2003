@@ -4,6 +4,7 @@
  */
 package src.scanner;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,7 +21,7 @@ import struct.GenericTree;
  */
 public class CocoFileParser {
     
-    private CocoFileScanner lexer;
+    private Scanner lexer;
     
     private GenericTree<Token> parseTree;
     
@@ -42,6 +43,18 @@ public class CocoFileParser {
     
     public CocoFileParser(String filename) throws Exception {
         lexer = new CocoFileScanner(filename);
+        lookAhead = lexer.getToken();
+        consume();
+        parseTree = new GenericTree();
+        charactersTable = new LinkedHashMap();
+        keywordsTable = new LinkedHashMap();
+        tokensTable = new LinkedHashMap();
+        ignoreTable = new LinkedHashMap(1);
+        excepts = new ArrayList();
+    }
+    
+    public CocoFileParser(File file) throws Exception {
+        lexer = new CocoFileScanner(file);
         lookAhead = lexer.getToken();
         consume();
         parseTree = new GenericTree();
@@ -74,14 +87,20 @@ public class CocoFileParser {
    }
    
    public Map<String, String> ignoreTable() {
-       Iterator i = ignoreTable.get("IGNORE").iterator();
-       String s = "";
-       while (i.hasNext()) {
-           s = s + (i.next()) + ((char)Regexer.OR);
-       }
-       Map<String, String> ignoreMap = new LinkedHashMap<String, String>(1);
-       ignoreMap.put("IGNORE", s.substring(0, s.length()-1));
-       return ignoreMap;
+            Set set = ignoreTable.get("IGNORE");
+            if (!set.isEmpty()) {
+                Iterator i = set.iterator();
+                String s = "";
+                while (i.hasNext()) {
+                    s = s + (i.next()) + ((char)Regexer.OR);
+                }
+                Map<String, String> ignoreMap = new LinkedHashMap<String, String>(1);
+                ignoreMap.put("IGNORE", s.substring(0, s.length()-1));
+                return ignoreMap;
+            }
+            
+       
+       return null;
    }
 
     private void compile() throws Exception {
@@ -93,7 +112,8 @@ public class CocoFileParser {
         matchValue("CHARACTERS");
         while (!verifyValue("KEYWORDS")) {
             setDeclaration();
-            matchValue(".");
+            matchType(Token.POINT);
+            //matchType(Token.NEWLINE);
         }
     }
     
@@ -106,10 +126,11 @@ public class CocoFileParser {
     
     private void tokens() throws Exception {
         matchValue("TOKENS");
-        while (!verifyValue("PRODUCTIONS") && !verifyValue("IGNORE")) {
+        while (!verifyValue("PRODUCTIONS") && !(verifyValue("IGNORE") && !lookAhead.type().equals(Token.EQUAL))) {
             tokenDecl();
             matchType(Token.POINT);
-        }
+            //matchType(Token.NEWLINE);
+        } 
     }
 
     private String matchType(String token) throws Exception {
@@ -140,7 +161,7 @@ public class CocoFileParser {
         matchValue("=");
         Set<Character> assigned = new LinkedHashSet();
         addTo(assigned);
-        while (!verifyValue(".")) {
+        while (!currentToken.type().equals(Token.POINT)) {
             if (verifyValue("+")) {
                 matchValue("+");
                 addTo(assigned);
@@ -153,7 +174,7 @@ public class CocoFileParser {
     }
 
     private void addTo(Set<Character> assigned) throws Exception {
-        if (currentToken.type() == Token.IDENT) {
+        if (currentToken.type().equals(Token.IDENT)) {
             Set assignation = (Set) charactersTable.get(currentToken.value());
             if (assignation == null) {
                 throw new Exception("Identifier " + currentToken.value() + " must be defined previously");
@@ -161,20 +182,20 @@ public class CocoFileParser {
                 assigned.addAll(assignation);
             }
             consume();
-        } else if (currentToken.type() == Token.RESERVED) {
+        } else if (currentToken.type().equals(Token.RESERVED)) {
             String s = currentToken.value();
             if (s.equals("CHR")) {
                 matchValue("CHR");
                 charAdd(assigned);
             } 
             //consume();
-        } else if (currentToken.type() == Token.STRING) {
+        } else if (currentToken.type().equals(Token.STRING)) {
             String s = currentToken.value();
             for (int i = 0; i < s.length(); i++) {
                 assigned.add(s.charAt(i));
             }
             consume();
-        } else if (currentToken.type() == Token.CHAR) {
+        } else if (currentToken.type().equals(Token.CHAR)) {
             charAdd(assigned);
             
         } 
@@ -184,11 +205,11 @@ public class CocoFileParser {
     
     private void charAdd(Set<Character> assigned) throws Exception {
         char lower = (char) 1;
-        if (currentToken.type() == Token.CHAR) {
+        if (currentToken.type().equals(Token.CHAR)) {
             lower = currentToken.value().charAt(0);
             assigned.add(lower);
             consume();
-        } else if (currentToken.type() == Token.LPAREN) {
+        } else if (currentToken.type().equals(Token.LPAREN)) {
             matchType(Token.LPAREN);
             try {
                 int code = Integer.parseInt(matchType(Token.NUMBER));
@@ -201,16 +222,16 @@ public class CocoFileParser {
             
         }
         
-        if (lookAhead.type() == Token.POINT) {
+        if (lookAhead.type().equals(Token.POINT)) {
             matchType(Token.POINT);
             
             matchType(Token.POINT);
             char upper = (char) 1;
             
-            if (currentToken.type() == Token.CHAR) {
+            if (currentToken.type().equals(Token.CHAR)) {
                 upper = currentToken.value().charAt(0);
                 consume();
-            } else if (currentToken.type() == Token.RESERVED) {
+            } else if (currentToken.type().equals(Token.RESERVED)) {
                 matchValue("CHR");
                 matchValue("(");
                 try {
@@ -235,11 +256,11 @@ public class CocoFileParser {
     
     private void charSub(Set<Character> assigned) throws Exception {
         char lower = (char) 1;
-        if (currentToken.type() == Token.CHAR) {
+        if (currentToken.type().equals(Token.CHAR)) {
             lower = currentToken.value().charAt(0);
             assigned.remove(lower);
             consume();
-        } else if (currentToken.type() == Token.LPAREN) {
+        } else if (currentToken.type().equals(Token.LPAREN)) {
             matchType(Token.LPAREN);
             try {
                 int code = Integer.parseInt(matchType(Token.NUMBER));
@@ -252,16 +273,16 @@ public class CocoFileParser {
             
         }
         
-        if (lookAhead.type() == Token.POINT) {
+        if (lookAhead.type().equals(Token.POINT)) {
             matchType(Token.POINT);
             
             matchType(Token.POINT);
             char upper = (char) 1;
             
-            if (currentToken.type() == Token.CHAR) {
+            if (currentToken.type().equals(Token.CHAR)) {
                 upper = currentToken.value().charAt(0);
                 consume();
-            } else if (currentToken.type() == Token.RESERVED) {
+            } else if (currentToken.type().equals(Token.RESERVED)) {
                 matchValue("CHR");
                 matchValue("(");
                 try {
@@ -287,7 +308,7 @@ public class CocoFileParser {
     
     
     private void substractTo(Set<Character> assigned) throws Exception {
-        if (currentToken.type() == Token.IDENT) {
+        if (currentToken.type().equals(Token.IDENT)) {
             Set assignation = (Set) charactersTable.get(currentToken.value());
             if (assignation == null) {
                 throw new Exception("Identifier " + currentToken.value() + " must be defined previously");
@@ -295,7 +316,7 @@ public class CocoFileParser {
                 assigned.removeAll(assignation);
             }
             consume();
-        } else if (currentToken.type() == Token.RESERVED) {
+        } else if (currentToken.type().equals(Token.RESERVED)) {
             String s = currentToken.value();
             if (s.equals("CHR")) {
                 matchValue("CHR");
@@ -303,13 +324,13 @@ public class CocoFileParser {
             } 
             
             //consume();
-        } else if (currentToken.type() == Token.STRING) {
+        } else if (currentToken.type().equals(Token.STRING)) {
             String s = currentToken.value();
             for (int i = 0; i < s.length(); i++) {
                 assigned.remove(s.charAt(i));
             }
             consume();
-        } else if (currentToken.type() == Token.CHAR) {
+        } else if (currentToken.type().equals(Token.CHAR)) {
             charSub(assigned);
         } 
         
@@ -320,12 +341,18 @@ public class CocoFileParser {
         String identifier = matchType(Token.IDENT);
         matchValue("=");
         String asignee = matchType(Token.STRING);
-        matchValue(".");
+        matchType(Token.POINT);
         keywordsTable.put(identifier, asignee);
     }
 
     private void tokenDecl() throws Exception {
-        String identifier = matchType(Token.IDENT);
+        String identifier = "";
+        if (currentToken.type().equals(Token.IDENT)) {
+            identifier = matchType(Token.IDENT);
+        } else if (currentToken.type().equals(Token.RESERVED)) {
+            identifier = currentToken.value();
+            consume();
+        }
         String regex = "";
         if (verifyValue("=")) {
             matchType(Token.EQUAL);
@@ -351,14 +378,17 @@ public class CocoFileParser {
     private String tokenTerm() throws Exception {
         String expr = "";
         expr = expr + Regexer.LPAREN +  tokenFactor() + Regexer.RPAREN;
-        while (!verifyValue("EXCEPT KEYWORDS") && !verifyValue(".") && (currentToken.type()!= Token.RPAREN) && (currentToken.type()!= Token.SQRBRACKET) && (currentToken.type()!= Token.CURBRACKET)) {
+        if (verifyValue("|")) return expr;
+        while (!verifyValue("EXCEPT") && !(currentToken.type().equals(Token.POINT)) && (!currentToken.type().equals(Token.RPAREN)) && (!currentToken.type().equals(Token.SQRBRACKET)) && (!currentToken.type().equals(Token.CURBRACKET))) {
             expr = expr + tokenFactor();
         }
         return expr;
     }
 
     private String tokenFactor() throws Exception {
-        if (verifyValue("(")) {
+        if (currentToken.type().equals(Token.STRING)) {
+            return Regexer.LPAREN + matchType(Token.STRING) + Regexer.RPAREN;
+        } else if (verifyValue("(")) {
             matchType(Token.LPAREN);
             String expr = Regexer.LPAREN + tokenExpr() + Regexer.RPAREN;
             matchType(Token.RPAREN);
@@ -373,7 +403,7 @@ public class CocoFileParser {
             String expr = Regexer.LPAREN + tokenExpr() + Regexer.RPAREN + Regexer.KLEENE;
             matchType(Token.CURBRACKET);
             return expr;
-        } else if (currentToken.type() == Token.IDENT) {
+        } else if (currentToken.type().equals(Token.IDENT)) {
             Set<Character> s = (Set<Character>) charactersTable.get(matchType(Token.IDENT));
             if (s == null) {
                 throw new Exception("Invalid identifier");
@@ -383,10 +413,18 @@ public class CocoFileParser {
                 while (it.hasNext()) expr = expr + it.next().toString() + Regexer.OR;
                 return Regexer.LPAREN + expr.substring(0, expr.length()-1) + Regexer.RPAREN;    
             }
-        } else if (currentToken.type() == Token.STRING) {
-            return Regexer.LPAREN + matchType(Token.STRING) + Regexer.RPAREN;
-        } else if (currentToken.type() == Token.CHAR) {
+        } else if (currentToken.type().equals(Token.CHAR)) {
             return Regexer.LPAREN + matchType(Token.CHAR) + Regexer.RPAREN;
+        } else if (currentToken.type().equals(Token.RESERVED)) {
+            //if (verifyValue("CHR")) {
+                matchValue("CHR");
+                matchType(Token.LPAREN);
+                int code = Integer.parseInt(matchType(Token.NUMBER));
+                char ch = (char) code;
+                matchType(Token.RPAREN);
+                return ("" + Regexer.LPAREN + ch + Regexer.RPAREN);
+            //} 
+            
         } else throw new Exception ("Invalid token declaration");
     }
 
@@ -405,9 +443,10 @@ public class CocoFileParser {
     }
 
     private void exceptKw(String id) throws Exception {
-        if (currentToken.value().equals("EXCEPT KEYWORDS")) {
+        if (currentToken.value().equals("EXCEPT")) {
+            matchValue("EXCEPT");
             excepts.add(id);
-            matchValue("EXCEPT KEYWORDS");
+            matchValue("KEYWORDS");
         }
         
     }
@@ -418,7 +457,7 @@ public class CocoFileParser {
             matchValue("IGNORE");
             //matchValue("=");
             addTo(ignoreSet);
-            while (!verifyValue(".")) {
+            while (!(currentToken.type().equals(Token.POINT))) {
                 if (verifyValue("+")) {
                     matchValue("+");
                     addTo(ignoreSet);

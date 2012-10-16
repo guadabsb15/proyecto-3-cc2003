@@ -48,6 +48,8 @@ public interface TokenTypes {
     
     public static final String BAR = "BAR";
     
+    public static final String NEWLINE = "NEWLINE";
+    
     public static final Token EOF_TOKEN = new Token(EOF, "-1");
     
     
