@@ -112,8 +112,8 @@ public class CocoFileParser {
         }
     }
 
-    private String matchType(int token) throws Exception {
-        if (token == currentToken.type()) {
+    private String matchType(String token) throws Exception {
+        if (token.equals(currentToken.type())) {
             String val = currentToken.value();
             consume();
             return val;
@@ -365,7 +365,7 @@ public class CocoFileParser {
             return expr;
         } else if (verifyValue("[")) {
             matchType(Token.SQLBRACKET);
-            String expr = tokenExpr();
+            String expr = Regexer.LPAREN + tokenExpr() + Regexer.RPAREN + Regexer.ZERONE;
             matchType(Token.SQRBRACKET);
             return expr;
         } else if (verifyValue("{")) {
@@ -381,12 +381,12 @@ public class CocoFileParser {
                 Iterator it = s.iterator();
                 String expr = "";
                 while (it.hasNext()) expr = expr + it.next().toString() + Regexer.OR;
-                return expr.substring(0, expr.length()-1);    
+                return Regexer.LPAREN + expr.substring(0, expr.length()-1) + Regexer.RPAREN;    
             }
         } else if (currentToken.type() == Token.STRING) {
-            return matchType(Token.STRING);
+            return Regexer.LPAREN + matchType(Token.STRING) + Regexer.RPAREN;
         } else if (currentToken.type() == Token.CHAR) {
-            return matchType(Token.CHAR);
+            return Regexer.LPAREN + matchType(Token.CHAR) + Regexer.RPAREN;
         } else throw new Exception ("Invalid token declaration");
     }
 

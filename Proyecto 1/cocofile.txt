@@ -14,7 +14,7 @@ while="while".
 TOKENS
 
 id = letter{letter}.
-sum = letter(operators).
+sum = letter(operators)letter.
 
 IGNORE " ".
 

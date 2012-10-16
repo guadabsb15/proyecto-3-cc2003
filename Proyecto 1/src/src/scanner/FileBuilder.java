@@ -4,6 +4,7 @@
  */
 package src.scanner;
 
+import com.sun.accessibility.internal.resources.accessibility;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -19,6 +20,7 @@ import src.automatons.NFA;
 import src.automatons.NFABuilder;
 import src.automatons.Pair;
 import src.automatons.State;
+import src.automatons.Symbol;
 
 /**
  *
@@ -33,11 +35,14 @@ public class FileBuilder {
     private NFA nfa;
     private BufferedWriter out;
     private Map<State, String> mapping;
+    private String fileReadName;
+    private String fileWriteName;
     
-    public FileBuilder(String readName, String writeName) throws Exception {
+    
+    public FileBuilder(String readName, String writeName, String generatedRead) throws Exception {
         try {
-            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(writeName), "UTF-8"));
-            parser = new CocoFileParser(readName);
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/src/" + writeName + ".java"), "UTF-8"));
+            parser = new CocoFileParser(readName + ".txt");
             parser.parse();
         } catch(Exception e) {
             throw e; // new Exception("Error al crear el archivo");
@@ -47,6 +52,8 @@ public class FileBuilder {
         dfa = new DFA();
         nfa = new NFA();
         mapping = new LinkedHashMap<State, String>();
+        fileReadName = generatedRead + ".txt";
+        fileWriteName = writeName;
         
     }
     
@@ -72,6 +79,25 @@ public class FileBuilder {
             nfa.absorbAccepting(current);
         }
         dfa = (DFA) nfa.toDfa();
+    }
+    
+    public void writeFile() throws Exception {
+        try {
+            
+            writeImports(out);
+            out.write('\n');
+            writeClassName(out);
+            out.write('\n');
+            writeConstructor(out);
+            out.write('\n');
+            writeNextToken(out);
+            writeConsume(out);
+            out.write("}" + '\n');
+            out.close();
+            
+        } catch (Exception e) {
+            throw e;
+        }
     }
     
     public DFA dfa() {
@@ -104,6 +130,114 @@ public class FileBuilder {
             mapping.put((State) states.next(), currentId);
         }
     }
-    
-    
+
+    private void writeImports(BufferedWriter out) throws Exception {
+        out.write("package src;" + '\n');
+        out.write("import java.io.BufferedWriter;" + '\n');
+        out.write("import java.io.FileOutputStream;"+'\n');
+        out.write("import java.io.OutputStreamWriter;"+'\n');
+        out.write("import java.io.FileInputStream;");
+        out.write("import java.io.InputStreamReader;");
+        out.write("import java.io.BufferedReader;");
+        out.write("import java.util.ArrayList;"+'\n');
+        out.write("import java.util.Iterator;"+'\n');
+        out.write("import java.util.LinkedHashMap;"+'\n');
+        out.write("import java.util.Map;"+'\n');
+        out.write("import java.util.Set;"+'\n');
+        out.write("import src.Regexer;"+'\n');
+        out.write("import src.automatons.Automaton;"+'\n');
+        out.write("import src.automatons.DFA;"+'\n');
+        out.write("import src.automatons.NFA;"+'\n');
+        out.write("import src.automatons.NFABuilder;"+'\n');
+        out.write("import src.automatons.Pair;"+'\n');
+        out.write("import src.automatons.State;"+'\n');
+        out.write("import src.automatons.Symbol;"+'\n');
+        out.write("import src.scanner.Token;"+'\n');
+        
+    }
+
+    private void writeClassName(BufferedWriter out) throws Exception {
+        out.write("public class " + fileWriteName +  " {" + '\n');
+        out.write("private DFA dfa;" + '\n');
+        out.write("private BufferedReader reader;" + '\n');
+        out.write("private int currentCharacter;" + '\n');
+        out.write("private int nextCharacter;" + '\n');
+    }
+
+    private void writeConstructor(BufferedWriter out) throws Exception {
+        out.write("public " + fileWriteName +  "() throws Exception {" + '\n');
+        out.write("     reader = new BufferedReader(new InputStreamReader(new FileInputStream(\"" + fileReadName + "\"), \"UTF-8\"));" + '\n');
+        out.write("     consume();" + '\n');
+        out.write("     dfa = new DFA();" + '\n');
+        crystallizeAutomaton(out);
+        out.write("}" + '\n');
+    }
+
+    private void crystallizeAutomaton(BufferedWriter out) throws Exception {
+        Map<State, State> simplification = new LinkedHashMap<State, State>();
+        Set<State> states = dfa.states();
+        Iterator i = states.iterator();
+        int index = 1;
+        
+        while (i.hasNext()) {
+            State old = (State) i.next();
+            State simplified = new State(Integer.toString(index));
+            simplification.put(old, simplified);
+            out.write("     State s" + index + " = new State(\"" + index + "\");" + '\n');
+            out.write("     dfa.addState(s" + index + ");" + '\n');
+            if (old.attached() != null) {
+                out.write("     s" + index + ".setAttached(\"" + old.attached() + "\");" + '\n');
+            }
+            if (dfa.accepting().contains(old)) {
+                out.write("     dfa.addAcceptingState(s" + index + ");" + '\n');
+            }
+            if (dfa.initial_state().equals(old)) {
+                out.write("     dfa.changeInitialState(s" + index + ");" + '\n');
+            }
+            index++;
+        }
+        
+        Iterator transitions = dfa.transition().keySet().iterator();
+        while (transitions.hasNext()) {
+            Pair<State, Symbol> currentPair = (Pair<State, Symbol>) transitions.next();
+            State stateKey = currentPair.returnFirst();
+            Symbol symbolKey = currentPair.returnSecond();
+            Iterator stateValues = dfa.transition().get(currentPair).iterator();
+            while (stateValues.hasNext()) {
+                State currentVal = (State) stateValues.next();
+                out.write("     dfa.addTransition(new Pair(s" + simplification.get(stateKey).id() + ", new Symbol((char)" + ((int)symbolKey.id()) + ")), s" + simplification.get(currentVal).id() + ");" + '\n');
+            }
+            
+        }
+        
+        
+        
+        
+    }
+
+    private void writeNextToken(BufferedWriter out) throws Exception {
+        out.write("public Token getToken() throws Exception {" + '\n');
+        out.write("     StringBuilder s = new StringBuilder();" + '\n');
+        //out.write("     s.append((char)currentCharacter" + '\n');
+        out.write("     while((dfa.lastState() == null) || (!dfa.lastState().equals(DFA.deadState))) {" + '\n');
+        out.write("         consume();"+ '\n');
+        out.write("         if (currentCharacter == -1) return Token.EOF_TOKEN;" + '\n');
+        out.write("         s.append((char)currentCharacter);" + '\n');
+        out.write("         dfa.simulate(s.toString()+((char)nextCharacter));" + '\n');
+        out.write("     }" + '\n');
+        out.write("     if (dfa.lastState().equals(DFA.deadState)) {" + '\n');
+        out.write("         if (dfa.simulate(s.toString())) {" + '\n');
+        out.write("             return new Token(dfa.lastState().attached(), s.toString());" + '\n');
+        out.write("         }" + '\n');
+        out.write("     }" + '\n');
+        out.write("     throw new Exception(\"Invalid lexeme\");" + '\n');
+        out.write("}" + '\n');
+    }
+
+    private void writeConsume(BufferedWriter out) throws Exception {
+        out.write("private void consume() throws Exception {" + '\n');
+        out.write("     currentCharacter = nextCharacter;" + '\n');
+        out.write("     nextCharacter = reader.read();" + '\n');
+        out.write("}" + '\n');
+    }
 }

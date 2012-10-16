@@ -10,8 +10,50 @@ package src.scanner;
  */
 public interface TokenTypes {
     
-    public static final int IDENT = 0;
+    public static final String IDENT = "IDENT";
     
+    public static final String NUMBER = "NUMBER";
+    
+    public static final String STRING = "STRING";
+    
+    public static final String CHAR = "CHAR";
+    
+    public static final String RESERVED = "RESERVED";
+    
+    public static final String LPAREN = "LPAREN";
+    
+    public static final String RPAREN = "RPAREN";
+    
+    public static final String EQUAL = "EQUAL";
+    
+    public static final String EOF = "EOF";
+    
+    public static final String IGNORE = "IGNORE";
+    
+    public static final String PLUS = "PLUS";
+    
+    public static final String MINUS = "MINUS";
+    
+    public static final String POINT = "POINT";
+    
+    public static final String POString = "POString";
+    
+    public static final String SQRBRACKET = "SQRBRACKET";
+    
+    public static final String SQLBRACKET = "SQLBRACKET";
+    
+    public static final String CURBRACKET = "CURBRACKET";
+    
+    public static final String CULBRACKET = "CULBRACKET";
+    
+    public static final String BAR = "BAR";
+    
+    public static final Token EOF_TOKEN = new Token(EOF, "-1");
+    
+    
+    /**
+    public static final int IDENT = 0;
+      
     public static final int NUMBER = 1;
     
     public static final int STRING = 2;
@@ -47,5 +89,5 @@ public interface TokenTypes {
     public static final int BAR = 17;
     
     public static final Token EOF_TOKEN = new Token(EOF, "-1");
-    
+    */
 }
