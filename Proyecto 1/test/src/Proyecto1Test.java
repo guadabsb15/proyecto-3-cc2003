@@ -58,31 +58,31 @@ public class Proyecto1Test {
                 parcial.addState(new State(Integer.toString(i)));
             }
             parcial.changeInitialState(new State("1"));
-            parcial.addAcceptingState(new State("18"));
+            parcial.addAcc(new State("18"));
             parcial.addSymbol(new Symbol("a"));
             parcial.addSymbol(new Symbol("b"));
             
-            parcial.addTransition(new Pair<State, Symbol>(new State("1"), Regexer.EMPTY_STR), new State("2"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("1"), Regexer.EMPTY_STR), new State("8"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("2"), Regexer.EMPTY_STR), new State("3"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("2"), Regexer.EMPTY_STR), new State("4"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("3"), new Symbol("a")), new State("5"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("4"), new Symbol("b")), new State("6"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("5"), Regexer.EMPTY_STR), new State("7"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("6"), Regexer.EMPTY_STR), new State("7"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("7"), Regexer.EMPTY_STR), new State("2"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("8"), new Symbol("a")), new State("9"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("9"), Regexer.EMPTY_STR), new State("10"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("9"), Regexer.EMPTY_STR), new State("13"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("10"), Regexer.EMPTY_STR), new State("11"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("10"), Regexer.EMPTY_STR), new State("12"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("11"), new Symbol("a")), new State("14"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("12"), new Symbol("b")), new State("15"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("13"), Regexer.EMPTY_STR), new State("16"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("14"), Regexer.EMPTY_STR), new State("17"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("15"), Regexer.EMPTY_STR), new State("17"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("16"), Regexer.EMPTY_STR), new State("18"));
-            parcial.addTransition(new Pair<State, Symbol>(new State("17"), Regexer.EMPTY_STR), new State("18"));
+            parcial.addTr(new Pair<State, Symbol>(new State("1"), Regexer.EMPTY_STR), new State("2"));
+            parcial.addTr(new Pair<State, Symbol>(new State("1"), Regexer.EMPTY_STR), new State("8"));
+            parcial.addTr(new Pair<State, Symbol>(new State("2"), Regexer.EMPTY_STR), new State("3"));
+            parcial.addTr(new Pair<State, Symbol>(new State("2"), Regexer.EMPTY_STR), new State("4"));
+            parcial.addTr(new Pair<State, Symbol>(new State("3"), new Symbol("a")), new State("5"));
+            parcial.addTr(new Pair<State, Symbol>(new State("4"), new Symbol("b")), new State("6"));
+            parcial.addTr(new Pair<State, Symbol>(new State("5"), Regexer.EMPTY_STR), new State("7"));
+            parcial.addTr(new Pair<State, Symbol>(new State("6"), Regexer.EMPTY_STR), new State("7"));
+            parcial.addTr(new Pair<State, Symbol>(new State("7"), Regexer.EMPTY_STR), new State("2"));
+            parcial.addTr(new Pair<State, Symbol>(new State("8"), new Symbol("a")), new State("9"));
+            parcial.addTr(new Pair<State, Symbol>(new State("9"), Regexer.EMPTY_STR), new State("10"));
+            parcial.addTr(new Pair<State, Symbol>(new State("9"), Regexer.EMPTY_STR), new State("13"));
+            parcial.addTr(new Pair<State, Symbol>(new State("10"), Regexer.EMPTY_STR), new State("11"));
+            parcial.addTr(new Pair<State, Symbol>(new State("10"), Regexer.EMPTY_STR), new State("12"));
+            parcial.addTr(new Pair<State, Symbol>(new State("11"), new Symbol("a")), new State("14"));
+            parcial.addTr(new Pair<State, Symbol>(new State("12"), new Symbol("b")), new State("15"));
+            parcial.addTr(new Pair<State, Symbol>(new State("13"), Regexer.EMPTY_STR), new State("16"));
+            parcial.addTr(new Pair<State, Symbol>(new State("14"), Regexer.EMPTY_STR), new State("17"));
+            parcial.addTr(new Pair<State, Symbol>(new State("15"), Regexer.EMPTY_STR), new State("17"));
+            parcial.addTr(new Pair<State, Symbol>(new State("16"), Regexer.EMPTY_STR), new State("18"));
+            parcial.addTr(new Pair<State, Symbol>(new State("17"), Regexer.EMPTY_STR), new State("18"));
             
             Automaton dfaParcial = parcial.toDfa();
             

@@ -18,20 +18,46 @@ import java.util.Set;
  */
 public class CocoFileScanner implements Scanner {
     
+    /**
+     * Object to read the file
+     */
     private BufferedReader reader;
     
+    /**
+     * Current character being scanned
+     */
     private int currentCharacter;
+    
+    /**
+     * Lookahead to the next character in the file
+     */
+    private int nextCharacter;
+    
+    /**
+     * Flag to process comments
+     */
+    private boolean insideComment;
     
     private ArrayList<Token> tokens;
     
+    /**
+     * Characters to ignore
+     */
     private Set<Character> ignore;
     
     private int line;
     
+    /**
+     * Class constructor
+     * @param filename
+     * @throws Exception 
+     */
     public CocoFileScanner(String filename) throws Exception {
         try {
+            insideComment = false;
             line = 1;
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF-8")); 
+            nextCharacter = reader.read();
             consume();
             tokens = new ArrayList();
             ignore = new LinkedHashSet();
@@ -43,9 +69,16 @@ public class CocoFileScanner implements Scanner {
         }
     }
     
+    /**
+     * Class constructor
+     * @param file
+     * @throws Exception 
+     */
     public CocoFileScanner(File file) throws Exception {
         try {
+            insideComment = false;
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")); 
+            nextCharacter = reader.read();
             consume();
             tokens = new ArrayList();
             ignore = new LinkedHashSet();
@@ -58,20 +91,39 @@ public class CocoFileScanner implements Scanner {
         }
     }
     
+    /**
+     * Returns the current line being read
+     * @return 
+     */
     public int line() {
         return line;
     }
     
-    
+    /**
+     * Returns the next token from the file
+     * @return
+     * @throws Exception 
+     */
     @Override
     public Token getToken() throws Exception {
         try {
             
-            while (ignore.contains((char)currentCharacter)) {
+            while (ignore.contains((char)currentCharacter) || ((currentCharacter == (int) '(') && (nextCharacter == (int)'.'))) {
                 if (currentCharacter == '\n') line++;
+                if ((currentCharacter == (int) '(') && (nextCharacter == (int)'.')) insideComment = true;
+                while (insideComment) {
+                    if ((currentCharacter == (int) '.') && (nextCharacter == (int) ')')) {
+                        insideComment = false;
+                        consume();
+                        //consume();
+                    }
+                    consume();
+                }
                 consume();
             }
+
             char current = (char) currentCharacter;
+            
             if (Character.isDigit(current)) {
                 return number();
             } else if (Character.isLetter(current)) {
@@ -82,7 +134,8 @@ public class CocoFileScanner implements Scanner {
                 return character();
             } else {
                 if (currentCharacter == -1) return (new Token(Token.EOF, "-1"));
-                return terminal();
+                return terminal();  
+                 
             }
             
             
@@ -151,15 +204,13 @@ public class CocoFileScanner implements Scanner {
             match('\'');
             return (new Token(Token.CHAR, s.toString()));
         }
-        
-        
-        
+
     }
     
     private Token terminal() throws Exception {
         char current = (char) currentCharacter;
         consume();
-        if (current == '(') return (new Token(Token.LPAREN, Character.toString(current))); 
+        if (current == '(') return (new Token(Token.LPAREN, Character.toString(current)));
         else if (current == ')') return (new Token(Token.RPAREN, Character.toString(current)));
         else if (current == '=') return (new Token(Token.EQUAL, Character.toString(current)));
         else if (current == '+') return (new Token(Token.PLUS, Character.toString(current)));
@@ -178,8 +229,9 @@ public class CocoFileScanner implements Scanner {
 
     private void consume() throws Exception {
         try {
-            currentCharacter = reader.read(); 
-            //if (currentCharacter == '\r') currentCharacter = reader.read(); 
+            currentCharacter = nextCharacter;
+            nextCharacter = reader.read(); 
+           
         } catch (Exception e) {
             throw e;
         }
@@ -192,94 +244,6 @@ public class CocoFileScanner implements Scanner {
         }
     }
     
-    
-    /**
-    public void read() throws Exception {
-        try {
-            while (currentCharacter != -1) {
-                char current = (char) currentCharacter;
-                if (Character.isDigit(current)) {
-                    number();
-                } else if (Character.isLetter(current)) {
-                    identifier();
-                } else if (current == '"') {
-                    string();
-                } else if (current == '\\')  {
-                    character();
-                } else {
-                    terminal();
-                }
-            }
-            tokens.add(new Token(Token.EOF, "-1"));
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
-    private void number() throws Exception {
-        StringBuilder s = new StringBuilder();
-        
-        while (Character.isDigit((char) currentCharacter)) {
-            s.append((char)currentCharacter);
-            consume();
-        }
-        
-        tokens.add(new Token(Token.NUMBER, s.toString()));
-        
-    }
-
-    private void identifier() throws Exception {
-        StringBuilder s = new StringBuilder();
-        
-        while (Character.isLetter((char)currentCharacter) || Character.isDigit((char)currentCharacter)) {
-            s.append((char)currentCharacter);
-            consume();
-        }
-        String str = s.toString();
-        if (str.equals("CHARACTERS")) tokens.add(new Token(Token.RESERVED, str));
-        else if (str.equals("KEYWORDS")) tokens.add(new Token(Token.RESERVED, str));
-        else if (str.equals("TOKENS")) tokens.add(new Token(Token.RESERVED, str));
-        else tokens.add(new Token(Token.IDENT, s.toString()));
-
-    }
-
-    private void string() throws Exception {
-        StringBuilder s = new StringBuilder();
-        match('"');
-        
-        while ((char)currentCharacter != '"' ) {
-            s.append((char)currentCharacter);
-            consume();
-        }
-        
-        match('"');
-        
-        tokens.add(new Token(Token.STRING, s.toString()));
-    }
-
-    private void character() throws Exception {
-        StringBuilder s = new StringBuilder();
-        
-        match('\\');
-        
-        s.append((char)currentCharacter);
-        tokens.add(new Token(Token.CHAR, s.toString()));
-        consume();
-        
-        match('\\');
-        
-    }
-
-    
-
-    private void terminal() throws Exception {
-        char current = (char) currentCharacter;
-        if (current == '(') tokens.add(new Token(Token.LPAREN, Character.toString(current))); 
-        else if (current == ')') tokens.add(new Token(Token.RPAREN, Character.toString(current)));
-        else if (current == '=') tokens.add(new Token(Token.EQUAL, Character.toString(current)));
-        consume();
-    }
-    */
     public ArrayList<Token> tokens() {
         return tokens;
     }

@@ -37,7 +37,7 @@ public class NFA extends Automaton {
             super.addState(s);
             Pair selfEpsilon = new Pair(s, Regexer.EMPTY_STR);
             try {
-                super.addTransition(selfEpsilon, s);
+                super.addTr(selfEpsilon, s);
                 
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -178,7 +178,7 @@ public class NFA extends Automaton {
         while (acc.hasNext()) {
             State current = (State) acc.next();
             if (initSet.contains(current)) {
-                dfa.addAcceptingState(initial);
+                dfa.addAcc(initial);
                 break;
             }
         }
@@ -210,7 +210,7 @@ public class NFA extends Automaton {
                             uState.setAttached(current.attached());
                         }
                     }
-                    if (accepting) dfa.addAcceptingState(uState);
+                    if (accepting) dfa.addAcc(uState);
                     transitions.put(new Pair<State, Symbol>(tState, a), uState.toSet());
 
                 }

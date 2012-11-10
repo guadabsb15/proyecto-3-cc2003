@@ -17,14 +17,17 @@ import java.util.Set;
 import src.Regexer;
 import src.automatons.Automaton;
 import src.automatons.DFA;
+import src.automatons.DFABuilder;
 import src.automatons.NFA;
 import src.automatons.NFABuilder;
 import src.automatons.Pair;
 import src.automatons.State;
 import src.automatons.Symbol;
 
+
+
 /**
- *
+ * Writes the generated lexical analyzer file in Java
  * @author asus
  */
 public class FileBuilder {
@@ -32,6 +35,7 @@ public class FileBuilder {
     private CocoFileParser parser;
     private Regexer regexer;
     private NFABuilder nfaBuilder;
+    private DFABuilder dfaBuilder;
     private DFA dfa;
     private NFA nfa;
     private BufferedWriter out;
@@ -40,8 +44,15 @@ public class FileBuilder {
     private String fileWriteName;
     private ArrayList<String> excepts;
     private Set<String> excepted;
+    private Map<State, State> simplification;
     
-    
+    /**
+     * Class constructor
+     * @param readName
+     * @param writeName
+     * @param generatedRead
+     * @throws Exception 
+     */
     public FileBuilder(String readName, String writeName, String generatedRead) throws Exception {
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("src/src/" + writeName + ".java"), "UTF-8"));
@@ -52,14 +63,22 @@ public class FileBuilder {
         }
         regexer = new Regexer();
         nfaBuilder = new NFABuilder(regexer);
+        dfaBuilder = new DFABuilder(regexer);
         dfa = new DFA();
         nfa = new NFA();
         mapping = new LinkedHashMap<State, String>();
         //fileReadName = generatedRead + ".txt";
         fileWriteName = writeName;
+        simplification = new LinkedHashMap<State, State>();
         
     }
     
+    /**
+     * Class constructor
+     * @param specification
+     * @param generated
+     * @throws Exception 
+     */
     public FileBuilder(File specification, File generated) throws Exception {
         try {
             out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(generated), "UTF-8"));
@@ -70,15 +89,20 @@ public class FileBuilder {
         }
         regexer = new Regexer();
         nfaBuilder = new NFABuilder(regexer);
+        dfaBuilder = new DFABuilder(regexer);
         dfa = new DFA();
         nfa = new NFA();
         mapping = new LinkedHashMap<State, String>();
         //fileReadName = generatedRead + ".txt";
         fileWriteName = generated.getName();
+        simplification = new LinkedHashMap<State, State>();
         
     }
     
-    
+    /**
+     * Builts the automaton that will serve as the lexical analyzer, from the information collected by the parser
+     * @throws Exception 
+     */
     public void buildAutomaton() throws Exception {
         Map<String, String> keywordsTable = parser.keywordsTable();
         Map<String, String> ignoreTable = parser.ignoreTable();
@@ -96,7 +120,7 @@ public class FileBuilder {
         nfa.changeInitialState(initial);
         for (int i = 0; i < automata.size(); i++) {
             DFA current = automata.get(i);
-            nfa.addTransition(new Pair(initial, Regexer.EMPTY_STR), current.initial_state().toSet());
+            nfa.addTr(new Pair(initial, Regexer.EMPTY_STR), current.initial_state().toSet());
             nfa.absorbSymbols(current);
             nfa.absorb(current);
             nfa.absorbAccepting(current);
@@ -104,6 +128,10 @@ public class FileBuilder {
         dfa = (DFA) nfa.toDfa();
     }
     
+    /**
+     * Writes the java file that implements the lexical analyzer
+     * @throws Exception 
+     */
     public void writeFile() throws Exception {
         try {
             buildAutomaton();
@@ -135,8 +163,15 @@ public class FileBuilder {
             
             NFA automaton = (NFA) nfaBuilder.build(currentString);
             DFA converted = (DFA) automaton.toDfa();
+            //converted = converted.minimize();
+            
+            
+            //DFA converted = (DFA) dfaBuilder.build(currentString);
             converted.attach(currentId);
             automata.add(converted);
+            
+            //automaton.attach(currentId);
+            //automata.add(automaton);
             
             addMappings(automaton.accepting(), currentId);
             
@@ -157,22 +192,12 @@ public class FileBuilder {
     private void writeImports(BufferedWriter out) throws Exception {
         out.write("package src;" + '\n');
         out.write("import java.io.File;" + '\n');
-        out.write("import java.io.BufferedWriter;" + '\n');
-        out.write("import java.io.FileOutputStream;"+'\n');
-        out.write("import java.io.OutputStreamWriter;"+'\n');
         out.write("import java.io.FileInputStream;");
         out.write("import java.io.InputStreamReader;");
         out.write("import java.io.BufferedReader;");
         out.write("import java.util.ArrayList;"+'\n');
-        out.write("import java.util.Iterator;"+'\n');
-        out.write("import java.util.LinkedHashMap;"+'\n');
-        out.write("import java.util.Map;"+'\n');
         out.write("import java.util.Set;"+'\n');
-        out.write("import src.Regexer;"+'\n');
-        out.write("import src.automatons.Automaton;"+'\n');
         out.write("import src.automatons.DFA;"+'\n');
-        out.write("import src.automatons.NFA;"+'\n');
-        out.write("import src.automatons.NFABuilder;"+'\n');
         out.write("import src.automatons.Pair;"+'\n');
         out.write("import src.automatons.State;"+'\n');
         out.write("import src.automatons.Symbol;"+'\n');
@@ -187,15 +212,27 @@ public class FileBuilder {
         out.write("     private BufferedReader reader;" + '\n');
         out.write("     private int currentCharacter;" + '\n');
         out.write("     private int nextCharacter;" + '\n');
+        out.write("     private int line;" + '\n');
         out.write("     private ArrayList<String> excepts;" + '\n');
         out.write("     Set<String> excepted;" + '\n');
+        
+        Set<State> states = dfa.states();
+        int index = 1;
+        for (int i = 0; i < states.size(); i++) {
+            out.write("         private State s" + index + " = new State(\"" + index + "\");" + '\n');
+            index++;
+        }
     }
 
     private void writeConstructor(BufferedWriter out) throws Exception {
         out.write("     public " + fileWriteName +  "(File file) throws Exception {" + '\n');
         out.write("         reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), \"UTF-8\"));" + '\n');
         out.write("         consume();" + '\n');
+        out.write("         line = 1;" + '\n');
         out.write("         dfa = new DFA();" + '\n');
+        out.write("         createStates();" + '\n');
+        out.write("         createTransitions();" + '\n');
+        out.write("     }" + '\n' + '\n');
         
         /**
         out.write("         excepts = new ArrayList<String>();" + '\n');
@@ -210,37 +247,50 @@ public class FileBuilder {
         }*/
         
         crystallizeAutomaton(out);
-        out.write("     }" + '\n');
+        
 
     }
     
     
-
+    
+    /**
+     * Crystallizes the automaton that resides in memory to the Java file
+     * @param out
+     * @throws Exception 
+     */
     private void crystallizeAutomaton(BufferedWriter out) throws Exception {
-        Map<State, State> simplification = new LinkedHashMap<State, State>();
+        //Map<State, State> simplification = new LinkedHashMap<State, State>();
+        
         Set<State> states = dfa.states();
         Iterator i = states.iterator();
         int index = 1;
         
+        out.write("     private void createStates() throws Exception {" + '\n');
         while (i.hasNext()) {
             State old = (State) i.next();
             State simplified = new State(Integer.toString(index));
             simplification.put(old, simplified);
-            out.write("         State s" + index + " = new State(\"" + index + "\");" + '\n');
+            //out.write("         State s" + index + " = new State(\"" + index + "\");" + '\n');
             out.write("         dfa.addState(s" + index + ");" + '\n');
             if (old.attached() != null) {
                 out.write("         s" + index + ".setAttached(\"" + old.attached() + "\");" + '\n');
             }
             if (dfa.accepting().contains(old)) {
-                out.write("         dfa.addAcceptingState(s" + index + ");" + '\n');
+                out.write("         dfa.addAcc(s" + index + ");" + '\n');
             }
             if (dfa.initial_state().equals(old)) {
                 out.write("         dfa.changeInitialState(s" + index + ");" + '\n');
             }
             index++;
         }
+        out.write("     }" + '\n' + '\n');
+        //out.write("         writeTransitions();" + '\n');
+        ////out.write("     }" + '\n');
         
         Iterator transitions = dfa.transition().keySet().iterator();
+        
+        //out.write("     public void writeTransitions() throws Exception {" + '\n');
+        out.write("     private void createTransitions() throws Exception {" + '\n');
         while (transitions.hasNext()) {
             Pair<State, Symbol> currentPair = (Pair<State, Symbol>) transitions.next();
             State stateKey = currentPair.returnFirst();
@@ -248,23 +298,21 @@ public class FileBuilder {
             Iterator stateValues = dfa.transition().get(currentPair).iterator();
             while (stateValues.hasNext()) {
                 State currentVal = (State) stateValues.next();
-                out.write("         dfa.addTransition(new Pair(s" + simplification.get(stateKey).id() + ", new Symbol((char)" + ((int)symbolKey.id()) + ")), s" + simplification.get(currentVal).id() + ");" + '\n');
+                out.write("         dfa.intTr(new Pair(s" + simplification.get(stateKey).id() + ", " + ((int)symbolKey.id()) + "), s" + simplification.get(currentVal).id() + ");" + '\n');
             }
             
         }
-        
-        
-        
+        out.write("     }" + '\n' + '\n');
         
     }
 
     private void writeNextToken(BufferedWriter out) throws Exception {
-        out.write("     @Override");
+        out.write("     @Override" + '\n');
         out.write("     public Token getToken() throws Exception {" + '\n');
         out.write("         StringBuilder s = new StringBuilder();" + '\n');
-        //out.write("     s.append((char)currentCharacter" + '\n');
         out.write("         while((dfa.lastState() == null) || (!dfa.lastState().equals(DFA.deadState))) {" + '\n');
         out.write("             consume();"+ '\n');
+        out.write("             if (currentCharacter == (int) \'\\n\') line++;" + '\n');
         out.write("             if (currentCharacter == -1) return Token.EOF_TOKEN;" + '\n');
         out.write("             s.append((char)currentCharacter);" + '\n');
         out.write("             dfa.simulate(s.toString()+((char)nextCharacter));" + '\n');
@@ -274,7 +322,7 @@ public class FileBuilder {
         out.write("                 return new Token(dfa.lastState().attached(), s.toString());" + '\n');
         out.write("             }" + '\n');
         out.write("         }" + '\n');
-        out.write("         throw new Exception(\"Invalid lexeme\");" + '\n');
+        out.write("         throw new Exception(\"Line : \" + line + \"Invalid lexeme\");" + '\n');
         out.write("     }" + '\n' + '\n');
     }
 
@@ -282,6 +330,10 @@ public class FileBuilder {
         out.write("     private void consume() throws Exception {" + '\n');
         out.write("         currentCharacter = nextCharacter;" + '\n');
         out.write("         nextCharacter = reader.read();" + '\n');
+        out.write("     }" + '\n');
+        
+        out.write("     public int line() {" + '\n');
+        out.write("         return line;" + '\n');
         out.write("     }" + '\n');
     }
 }

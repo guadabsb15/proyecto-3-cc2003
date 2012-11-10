@@ -45,12 +45,10 @@ public class DoubleAritmeticaTest {
     public void testGetToken() throws Exception {
         System.out.println("getToken");
         DoubleAritmetica instance = new DoubleAritmetica(new File("C:/Users/asus/Desktop/Pruebas/Lectura/doubleAritmetica.txt"));
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
+        Token t = instance.getToken();
+        while (!t.value().equals("-1")) {
+            System.out.println(t);
+            t = instance.getToken();
+        }
     }
 }

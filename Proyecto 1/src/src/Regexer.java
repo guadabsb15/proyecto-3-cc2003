@@ -17,6 +17,7 @@ import java.util.Stack;
 import src.automatons.Symbol;
 import struct.BinaryTree;
 import struct.BTPostOrderIterator;
+import java.lang.Double;
 
 /**
  * Evaluates an infix expression
@@ -30,15 +31,13 @@ public class Regexer {
     
     public final static Symbol EMPTY_STR = new Symbol("ε");
     
-    public final static Symbol EXTENSION = new Symbol("#");
+    //public final static Symbol EXTENSION = new Symbol("#");
     
      /**
      * Symbols used as operators
      */
     private String OPERATORS;
-   
-    
-    
+
     /**
      * Symbols 
      */
@@ -64,6 +63,9 @@ public class Regexer {
     
     public static final char RPAREN = (char) 65528; 
     public static Symbol RPAREN_SYM = new Symbol(RPAREN);
+    
+    public static final char EXTENSION = (char) 65526; 
+    public static Symbol EXTENSION_SYM = new Symbol(EXTENSION);
     
     /**
      * Symbols used to group expresions
@@ -150,12 +152,13 @@ public class Regexer {
         //expression = expression.trim();
         //expression = expression.replaceAll(" ", "");
         expression = insertCats(expression);
+        //System.out.println(expression);
         if (expression.equals("")) expression = Regexer.EMPTY_STR.toString();
         getTokens(expression);  
         try {
            shunt();  
         } catch (EmptyStackException e) {
-            throw new Exception("Expresión mal formada");
+            throw new Exception(e.getMessage());
         }
           
         return abstractSyntaxTree;

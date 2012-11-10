@@ -35,6 +35,10 @@ public class Symbol {
         id = s.charAt(0);
     }
     
+    public Symbol(int code) {
+        id = (char) code;
+    }
+    
     /**
      * Class constructor from a char
      * @param c 

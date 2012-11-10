@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -94,7 +95,7 @@ public abstract class Automaton {
      * Adds an accepting state
      * @param s 
      */
-    public void addAcceptingState(State s) {
+    public void addAcc(State s) {
         accepting.add(s);
         addState(s);
     }
@@ -130,7 +131,7 @@ public abstract class Automaton {
      * @param s
      * @throws Exception 
      */
-    public void addTransition(Pair<State, Symbol> p, State s) throws Exception {
+    public void addTr(Pair<State, Symbol> p, State s) throws Exception {
         if (!states.contains(p.returnFirst())) {
             throw new Exception("Reference to non-existant state");
         }
@@ -153,7 +154,31 @@ public abstract class Automaton {
      * @param s
      * @throws Exception 
      */
-    public void addTransition(Pair<State, Symbol> p, Set<State> s) throws Exception {
+    public void intTr(Pair<State, Integer> p, State s) throws Exception {
+        Pair<State, Symbol> newPair = new Pair(p.returnFirst(), new Symbol(p.returnSecond()));
+        if (!states.contains(newPair.returnFirst())) {
+            throw new Exception("Reference to non-existant state");
+        }
+        if (!symbols.contains(newPair.returnSecond())) {
+            symbols.add(new Symbol(newPair.returnSecond()));
+        }
+        if (transition.containsKey(newPair)) {
+            Set<State> value = transition.get(newPair);
+            value.add(s);
+            transition.put(newPair, value);
+        } else {
+            //symbols.add(p.returnSecond());
+            transition.put(newPair, s.toSet());
+        }
+    }
+    
+    /**
+     * Adds a transition to the automaton
+     * @param p
+     * @param s
+     * @throws Exception 
+     */
+    public void addTr(Pair<State, Symbol> p, Set<State> s) throws Exception {
         if (!states.contains(p.returnFirst())) {
             throw new Exception("Reference to non-existant state");
         }
@@ -164,7 +189,26 @@ public abstract class Automaton {
         } else {
             transition.put(p, s);
         }
-        
+    }
+    
+    /**
+     * Adds a transition to the automaton
+     * @param p
+     * @param s
+     * @throws Exception 
+     */
+    public void intTr(Pair<State, Integer> p, Set<State> s) throws Exception {
+        Pair<State, Symbol> newPair = new Pair(p.returnFirst(), new Symbol(p.returnSecond()));
+        if (!states.contains(newPair.returnFirst())) {
+            throw new Exception("Reference to non-existant state");
+        }
+        if (transition.containsKey(newPair)) {
+            Set<State> value = transition.get(newPair);
+            value.addAll(s);
+            transition.put(newPair, value);
+        } else {
+            transition.put(newPair, s);
+        }
     }
     
     /**

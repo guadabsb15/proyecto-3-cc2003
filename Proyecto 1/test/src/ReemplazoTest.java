@@ -6,28 +6,19 @@ package src;
 
 import java.io.File;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+//import src.Reemplazo;
 import src.scanner.Token;
 
 /**
  *
  * @author asus
  */
-public class drkTest {
+public class ReemplazoTest {
     
-    public drkTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+    public ReemplazoTest() {
     }
     
     @Before
@@ -37,16 +28,19 @@ public class drkTest {
     @After
     public void tearDown() {
     }
-
-    /**
-     * Test of getToken method, of class drk.
+    
+     /**
+     * Test of getToken method, of class DoubleAritmetica.
      */
     @Test
     public void testGetToken() throws Exception {
         System.out.println("getToken");
-        drk instance = new drk(new File("C:/Users/asus/Desktop/recover.txt"));
+        //Reemplazo instance = new Reemplazo(new File("C:/Users/asus/Desktop/Pruebas/Lectura/reemplazo.txt"));
+        //Token t = instance.getToken();
+        //while (!t.value().equals("-1")) {
+            //System.out.println(t);
+            //t = instance.getToken();
+        //}
         
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
     }
 }

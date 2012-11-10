@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import src.Regexer;
 
 /**
@@ -121,49 +122,72 @@ public class DFA extends Automaton  {
      * @return 
      */
     @Override
-    public Automaton minimize() {
+    public DFA minimize() {
         
-        Set<Set<State>> partitions = new LinkedHashSet();
+        Set<Set<State>> P = new ConcurrentSkipListSet();
         
         Set<State> initial = states;
         initial.removeAll(accepting);
-        partitions.add(initial);
-        partitions.add(accepting);
+        P.add(initial);
+        P.add(accepting);
         
-        Set<Set<State>> newPartition = new LinkedHashSet();
+        Set<Set<State>> W = new ConcurrentSkipListSet();
+        W.addAll(P);
         
-        while (!partitions.equals(newPartition)) {
-            
-            Map<State, Set<State>> table = new LinkedHashMap();
-            Iterator parts = partitions.iterator();
-            while (parts.hasNext()) {
-                Set<State> currentValue = (Set<State>) parts.next();
-                Iterator keys = currentValue.iterator();
+        while (!W.isEmpty()) {
+            Iterator i = W.iterator();
+            Set<State> A = (Set<State>) i.next();
+            W.remove(A);
+            Iterator syms = super.symbols.iterator();
+            while (syms.hasNext()) {
+                Symbol c = (Symbol) syms.next();
+                Set<State> X = new LinkedHashSet();
+                Iterator keys = super.transition.keySet().iterator();
                 while (keys.hasNext()) {
-                    table.put(((State) keys.next()), currentValue);
+                    Pair<State, Symbol> current = (Pair<State, Symbol>) keys.next();
+                    if (current.returnSecond().equals(c) && A.contains(transition.get(current))) X.add((State)transition.get(current));
+                }
+                Iterator ways = P.iterator();
+                while (ways.hasNext()) {
+                    Set<State> Y = (Set<State>) ways.next();
+                    Set<State> intersection = new ConcurrentSkipListSet<State>();
+                    intersection.addAll(X);
+                    intersection.retainAll(Y);
+                    if (!intersection.isEmpty()) {
+                        P.remove(Y);
+                        P.add(intersection);
+                        Set<State> difference = new ConcurrentSkipListSet<State>();
+                        difference.addAll(Y);
+                        difference.removeAll(X);
+                        P.add(difference);
+                        
+                        if (W.contains(Y)) {
+                            W.remove(Y);
+                            W.add(intersection);
+                            W.add(difference);
+                        } else {
+                            if (intersection.size() <= difference.size()) {
+                                W.add(intersection);
+                            } else {
+                                W.add(difference);
+                            }
+                        }
+                        
+                        
+                    }
                 }
             }
             
-            newPartition = partitions;
-            
-            parts = partitions.iterator();
-            
-            
-            
-            while (parts.hasNext()) {
-                Set<State> G = (Set<State>) parts.next();
-                
-                Iterator subgroupStates = G.iterator();
-                while (subgroupStates.hasNext()) {
-                    State currentState = (State) subgroupStates.next();
-                }
-                
-            }  
         }
         
+        DFA minimized = new DFA();
         
-        return this;
+        return minimized;
+        
+        
     }
+
+    
     
     
 }

@@ -16,29 +16,56 @@ import src.Regexer;
 import struct.GenericTree;
 
 /**
- *
+ * Parses a file based on a subset of the Coco/R specification
  * @author asus
  */
 public class CocoFileParser {
     
+    /**
+     * Lexer that provides the token stream
+     */
     private Scanner lexer;
     
     private GenericTree<Token> parseTree;
     
+    /**
+     * Current token being analyzed
+     */
     private Token currentToken;
     
+    /**
+     * Lookahead to the next token
+     */
     private Token lookAhead;
     
+    /**
+     * Compiler name as defined in the read file
+     */
     private String compiler;
     
+    /**
+     * Holds the defined character sets
+     */
     private Map<String, Set<Character>> charactersTable;
     
+    /**
+     * Holds the defined keywords
+     */
     private Map<String, String> keywordsTable;
     
+    /**
+     * Holds the set of characters to ignore
+     */
     private Map<String, Set<Character>> ignoreTable;
     
+    /**
+     * Holds the defined tokens
+     */
     private Map<String, String> tokensTable;
     
+    /**
+     * Identifiers that have an EXCEPT KEYWORDS associated
+     */
     private ArrayList<String> excepts;
     
     public CocoFileParser(String filename) throws Exception {
@@ -65,12 +92,17 @@ public class CocoFileParser {
         excepts = new ArrayList();
     }
     
+    /**
+     * Parses the file
+     * @throws Exception 
+     */
    public void parse() throws Exception { 
        compile();
        characters();
        keywords();
        tokens();
        ignore();
+       productions();
        //return parseTree;
    }
    
@@ -471,12 +503,16 @@ public class CocoFileParser {
         ignoreTable.put("IGNORE", ignoreSet);
     }
 
+    private void productions() throws Exception {
+        matchValue("PRODUCTIONS");
+    }
+
     
    
    
    class ParserException extends Exception {
        public ParserException(String msg) {
-           super(msg);
+           super("Line " + lexer.line() + " :" + msg);
        }
    }
    

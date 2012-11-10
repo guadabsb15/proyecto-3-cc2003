@@ -45,12 +45,10 @@ public class DoubleTest {
     public void testGetToken() throws Exception {
         System.out.println("getToken");
         Double instance = new Double(new File("C:/Users/asus/Desktop/Pruebas/Lectura/double.txt"));
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
-        System.out.println(instance.getToken());
+        Token t = instance.getToken();
+        while (!t.value().equals("-1")) {
+            System.out.println(t);
+            t = instance.getToken();
+        }
     }
 }

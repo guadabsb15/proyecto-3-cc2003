@@ -80,11 +80,11 @@ public class DFABuilder {
             if (regex.trim().equals("")) {
                 regex = Regexer.EMPTY_STR.toString();
             }
-            String extended = "(" + regex + ")#";
+            String extended = Regexer.LPAREN + regex + Regexer.RPAREN + Regexer.EXTENSION;
             regexer.evaluate(extended);
             symbols = regexer.symbols();
             symbols.remove(Regexer.EMPTY_STR);
-            symbols.remove(new Symbol("#"));
+            symbols.remove(Regexer.EXTENSION_SYM);
             BinaryTree<Symbol> tree = regexer.returnAST();
             BinaryTree<Symbol> valueTree = new BinaryTree(tree.value());
             label(tree);
@@ -111,7 +111,7 @@ public class DFABuilder {
             tree.setValue(replacement);
             
             Symbol key = tree.value();
-            if (key.id() == ("#".charAt(0))) acceptingPos = s;
+            if (key.id() == (Regexer.EXTENSION)) acceptingPos = s;
             
             if (table.containsKey(key)) {
                 Set<State> val = table.get(key);
@@ -179,11 +179,11 @@ public class DFABuilder {
         } else if (isLeaf(node) && (node.value().associated() != null)) {
             result.add(node.value().associated());
             return result;
-        } else if (node.value().equals(Regexer.OR)) {
+        } else if (node.value().equals(Regexer.OR_SYM)) {
             result.addAll(firstpos(node.left()));
             result.addAll(firstpos(node.right()));
             return result;
-        } else if (node.value().equals(Regexer.CONCATENATION)) {
+        } else if (node.value().equals(Regexer.CONCATENATION_SYM)) {
             if (nullable(node.left())) {
                 result.addAll(firstpos(node.left()));
                 result.addAll(firstpos(node.right()));
@@ -192,7 +192,7 @@ public class DFABuilder {
                 result.addAll(firstpos(node.left()));
                 return result;
             }
-        } else if (node.value().equals(Regexer.KLEENE)) {
+        } else if (node.value().equals(Regexer.KLEENE_SYM)) {
             result.addAll(firstpos(node.left()));
             return result;
         } else {
@@ -212,11 +212,11 @@ public class DFABuilder {
         } else if (isLeaf(node) && (node.value().associated() != null)) {
             result.add(node.value().associated());
             return result;
-        } else if (node.value().equals(Regexer.OR)) {
+        } else if (node.value().equals(Regexer.OR_SYM)) {
             result.addAll(lastpos(node.left()));
             result.addAll(lastpos(node.right()));
             return result;
-        } else if (node.value().equals(Regexer.CONCATENATION)) {
+        } else if (node.value().equals(Regexer.CONCATENATION_SYM)) {
             if (nullable(node.right())) {
                 result.addAll(lastpos(node.left()));
                 result.addAll(lastpos(node.right()));
@@ -225,7 +225,7 @@ public class DFABuilder {
                 result.addAll(lastpos(node.right()));
                 return result;
             }
-        } else if (node.value().equals(Regexer.KLEENE)) {
+        } else if (node.value().equals(Regexer.KLEENE_SYM)) {
             result.addAll(lastpos(node.left()));
             return result;
         } else {
@@ -240,7 +240,7 @@ public class DFABuilder {
     public void followpos(BinaryTree<Symbol> node) {
         if (isLeaf(node)) return;
         
-        if (node.value().equals(Regexer.CONCATENATION)) {
+        if (node.value().equals(Regexer.CONCATENATION_SYM)) {
             Set<State> positions = lastpos(node.left());
             Set<State> newValues = firstpos(node.right());
             
@@ -258,7 +258,7 @@ public class DFABuilder {
             }
             
             
-        } else if (node.value().equals(Regexer.KLEENE)) {
+        } else if (node.value().equals(Regexer.KLEENE_SYM)) {
             Set<State> positions = lastpos(node);
             Set<State> newValues = firstpos(node);
             
@@ -298,7 +298,7 @@ public class DFABuilder {
         Automaton dfa = new DFA();
          
         State initial = new State(firstpos(root));
-        if (firstpos(root).contains(acceptingPos)) dfa.addAcceptingState(initial);
+        if (firstpos(root).contains(acceptingPos)) dfa.addAcc(initial);
         dfa.changeInitialState(initial);
         Stack<State> unmarked = new Stack<State>();
         unmarked.push(initial);
@@ -331,7 +331,7 @@ public class DFABuilder {
                         if (added) {
                             unmarked.push(uState);
                         }
-                        if (U.contains(acceptingPos)) dfa.addAcceptingState(uState);
+                        if (U.contains(acceptingPos)) dfa.addAcc(uState);
                         Pair<State, Symbol> k = new Pair<State, Symbol>(sState, a); 
                         if (!k.returnSecond().equals(Regexer.EMPTY_STR))
                             transitions.put(k, uState.toSet()); 

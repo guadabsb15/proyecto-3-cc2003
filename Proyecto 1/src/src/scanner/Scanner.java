@@ -10,5 +10,12 @@ package src.scanner;
  */
 public interface Scanner {
     
+    /**
+     * Returns the next token from the analyzed file
+     * @return
+     * @throws Exception 
+     */
     public Token getToken() throws Exception ;
+    
+    public int line();
 }
