@@ -59,8 +59,8 @@ public class NFATest {
         instance.addState(s3);
         instance.addState(s4);
         try {
-            instance.addTransition(new Pair<State, Symbol>(s1, Regexer.EMPTY_STR), s2);
-            instance.addTransition(new Pair<State, Symbol>(s2, Regexer.EMPTY_STR), s3);
+            instance.addTr(new Pair<State, Symbol>(s1, Regexer.EMPTY_STR), s2);
+            instance.addTr(new Pair<State, Symbol>(s2, Regexer.EMPTY_STR), s3);
             Set<State> expResult = new LinkedHashSet<State>();
             expResult.add(s1);
             expResult.add(s2);
@@ -133,8 +133,8 @@ public class NFATest {
         instance.addState(s4);
         
         try {
-            instance.addTransition(new Pair<State, Symbol>(s1, new Symbol("a")), s2);
-            instance.addTransition(new Pair<State, Symbol>(s2, new Symbol("a")), s3);
+            instance.addTr(new Pair<State, Symbol>(s1, new Symbol("a")), s2);
+            instance.addTr(new Pair<State, Symbol>(s2, new Symbol("a")), s3);
             
             Set<State> expResult = new LinkedHashSet<State>();
             Set<State> T = new LinkedHashSet<State>();

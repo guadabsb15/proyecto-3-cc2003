@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
+import java.lang.Double;
 
 /**
  * Evaluates an infix expression

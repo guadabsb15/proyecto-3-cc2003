@@ -42,7 +42,7 @@ public class CocoFileScannerTest {
      */
     @Test
     public void testRead() {
-        System.out.println("read");
+        System.out.println("read \'\\n\')");
         try {
             CocoFileScanner instance = new CocoFileScanner("cocofile.txt");
             Token current = instance.getToken();
