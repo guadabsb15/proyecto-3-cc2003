@@ -22,4 +22,12 @@ number = digit{digit}.
 
 PRODUCTIONS
 
-sum = number "+" number | while.
+s = t e.
+
+e = "+" t e.
+
+t = f p.
+
+p = "*" f p.
+
+f = "(" s ")" | ident.
