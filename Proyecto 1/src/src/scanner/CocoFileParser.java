@@ -80,6 +80,10 @@ public class CocoFileParser {
     
     private Map<String, List> productionsTable;
     
+    private Map<String, Set<String>> followTable;
+    
+    private String startSymbol;
+    
 
     /**
      * Identifiers that have an EXCEPT KEYWORDS associated
@@ -104,6 +108,7 @@ public class CocoFileParser {
         intIdLookup = new LinkedHashMap<Integer, String>();
         idIntLookup = new LinkedHashMap<String, Integer>();
         productionsTable = new LinkedHashMap<String, List>();
+        followTable = new LinkedHashMap<String, Set<String>>();
     }
     
     public CocoFileParser(File file) throws Exception {
@@ -122,6 +127,7 @@ public class CocoFileParser {
         intIdLookup = new LinkedHashMap<Integer, String>();
         idIntLookup = new LinkedHashMap<String, Integer>();
         productionsTable = new LinkedHashMap<String, List>();
+        followTable = new LinkedHashMap<String, Set<String>>();
     }
     
     /**
@@ -537,15 +543,20 @@ public class CocoFileParser {
         while (!verifyValue("-1")) {
             production();
         }
+        //fillLists();
+        //makeFollows();
+        Set<String> f = first(productionsTable.get("s"));
     }
 
     private void production() throws Exception {
         String identifier = matchType(Token.IDENT);
+        if (startSymbol == null) startSymbol = identifier;
         matchType(Token.EQUAL);
         attributes(identifier);
         semActions(identifier);
         List rule = expression();
         matchType(Token.POINT);
+        productionsTable.put(identifier, rule);
         
     }
 
@@ -582,10 +593,11 @@ public class CocoFileParser {
     private ArrayList<ParserStruct> term() throws Exception {
         ArrayList<ParserStruct> term = new ArrayList<ParserStruct>();
         term.add(factor());
-        while (!currentToken.type().equals(Token.POINT) && !currentToken.type().equals(Token.BAR)) {
+        while (!currentToken.type().equals(Token.POINT) && !currentToken.type().equals(Token.BAR) && !currentToken.type().equals(Token.CURBRACKET) && !currentToken.type().equals(Token.SQRBRACKET)) {
             ParserStruct factor = factor();
             if (factor != null) term.add(factor);
         }
+        
         return term;
     }
 
@@ -600,7 +612,7 @@ public class CocoFileParser {
         } else if (currentToken.type().equals(Token.SCOMMENT)) {
             factor.semAction(currentToken.value());
             consume();
-        } else if (currentToken.equals(Token.LPAREN)) {
+        } else if (currentToken.type().equals(Token.LPAREN)) {
             consume();
             ArrayList<ParserStruct> subexpr = new ArrayList<ParserStruct>();
             while (!currentToken.equals(Token.RPAREN)) {
@@ -608,28 +620,161 @@ public class CocoFileParser {
                 consume();
             }
             factor.subStruct(subexpr);
-        } else if (currentToken.equals(Token.CULBRACKET)) {
+        } else if (currentToken.type().equals(Token.CULBRACKET)) {
             ArrayList<ParserStruct> subexpr = new ArrayList<ParserStruct>();
-            while (!currentToken.equals(Token.CURBRACKET)) {
-                subexpr.addAll(expression());
+            while (!currentToken.type().equals(Token.CURBRACKET)) {
                 consume();
+                subexpr.addAll(expression());
+                //consume();
             }
+            consume();
             factor.subStruct(subexpr);
             factor.action(ParserStruct.KLEENE);
-        } else if (currentToken.equals(Token.SQLBRACKET)) {
+        } else if (currentToken.type().equals(Token.SQLBRACKET)) {
             ArrayList<ParserStruct> subexpr = new ArrayList<ParserStruct>();
-            while (!currentToken.equals(Token.SQRBRACKET)) {
-                subexpr.addAll(expression());
+            while (!currentToken.type().equals(Token.SQRBRACKET)) {
                 consume();
+                subexpr.addAll(expression());
+                
             }
+            consume();
             factor.subStruct(subexpr);
             factor.action(ParserStruct.OPTIONAL);
         } 
         return factor;
     }
 
+    /**
+    private void fillLists() {
+        Set keys = productionsTable.keySet();
+        Iterator keyterator = keys.iterator();
+        while (keyterator.hasNext()) {
+            List current = productionsTable.get(keyterator.next());
+            fill(current);
+        }
+    }
+
+    private void fill(List<ParserStruct> current) {
+        for (int i = 0; i < current.size(); i++) {
+            ParserStruct node = current.get(i);
+            List l = productionsTable.get(node.id());
+            if ( l != null) {
+                List toAdd = new ArrayList();
+                toAdd.addAll(l);
+                node.subStruct(toAdd);
+            } 
+                
+            if (node.subStruct() != null) {
+                fill(node.subStruct());
+            }
+        }
+    }*/
+    
+    public Set<String> first(List<ParserStruct> altList) {
+        Set<String> f = new LinkedHashSet<String>();
+        
+        for (int i = 0; i < altList.size(); i++) {
+            ParserStruct altNode = altList.get(i);
+            if (altNode.subStruct() != null) {
+                ParserStruct firstNode = (ParserStruct) altNode.subStruct().get(0);
+                f.add(getFirst(firstNode));
+            } else {
+                f.add(getFirst(altNode));
+            }
+        }
+        return f;
+    }
+    
+    private String getFirst(ParserStruct p) {
+        if ((p.action() == 0) && (p.subStruct() == null)) {
+            return p.id();
+        } else {
+            return getFirst((ParserStruct) p.subStruct().get(0));
+        }
+    }
+
+    /**
+    public Set<String> first(String prod) {
+        
+        List<ParserStruct> rule = productionsTable.get(prod);
+        Set<String> first = new LinkedHashSet<String>();
+       
+        if (rule != null) {
+            for (int i = 0; i < rule.size(); i++) {
+                ParserStruct current = rule.get(i);
+                first.addAll(first(current.id()));      
+            }
+        }
+        
+        
+        if (rule != null) {
+            int index = 0;
+            for (int i = 0; i < rule.size(); i++) {
+                
+                
+                ParserStruct initial = rule.get(i);
+                List<ParserStruct> sub = initial.subStruct();
+                while (sub != null) {
+                    initial = sub.get(0);
+                    sub = initial.subStruct();
+                }
+                first.add(initial.id());
+                 
+               
+                
+                
+            }
+        } //else {
+            //first.add(prod);
+        //}
+         * return first;
+        
+        
+        
+    }
+    
+     
+
+    private void makeFollows() {
+        Iterator keys = productionsTable.keySet().iterator();
+        if (startSymbol != null) {
+            makeFollowEntry(startSymbol, "EOF");
+        }
+        while (keys.hasNext()) {
+            List<ParserStruct> toIterate = productionsTable.get(keys.next());
+            for (int i = 0; i < toIterate.size(); i++) {
+                List<ParserStruct> rule = toIterate.get(i).subStruct();
+                for (int j = 0; j < rule.size(); j++) {
+                    ParserStruct currentNode = rule.get(j);
+                    int index = 1;
+                    if (productionsTable.containsKey(currentNode.id()) && (index+j < rule.size())) {
+                        ParserStruct next = rule.get(j+index);
+                        while (next.attribute() != null || next.semAction() != null) {
+                            index++;
+                            next = rule.get(j+index);
+                        }
+                        makeFollowEntry(currentNode.id(), getFirst(next));
+                        
+                    }
+                }
+            }
+        }
+    }
     
    
+
+    private void makeFollowEntry(String symbol, String string) {
+        if (followTable.containsKey(symbol)) {
+            Set<String> val = followTable.get(symbol);
+            val.add(string);
+            followTable.put(symbol, val);
+        } else {
+            Set<String> val = new LinkedHashSet();
+            val.add(string);
+            followTable.put(symbol, val);
+        }
+    }
+   */
    
    class ParserException extends Exception {
        public ParserException(String msg) {

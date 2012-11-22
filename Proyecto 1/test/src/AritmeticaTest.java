@@ -52,6 +52,13 @@ public class AritmeticaTest {
         System.out.println(instance.getToken());
         System.out.println(instance.getToken());
         System.out.println(instance.getToken());
+        System.out.println(instance.getToken());
+        System.out.println(instance.getToken());
+        System.out.println(instance.getToken());
+        System.out.println(instance.getToken());
+        System.out.println(instance.getToken());
+        System.out.println(instance.getToken());
+        
         
         
     }

@@ -17,11 +17,11 @@ public class ParserStruct {
     
     private int action;
     
-    public static final int KLEENE = 0;
+    public static final int KLEENE = 1;
     
-    public static final int OR = 1;
+    public static final int OR = 2;
     
-    public static final int OPTIONAL = 2;
+    public static final int OPTIONAL = 3;
     
     private String attribute;
     
