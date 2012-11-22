@@ -108,17 +108,31 @@ public class CocoFileScanner implements Scanner {
     public Token getToken() throws Exception {
         try {
             
-            while (ignore.contains((char)currentCharacter) || ((currentCharacter == (int) '(') && (nextCharacter == (int)'.'))) {
+            while (ignore.contains((char)currentCharacter) || (((currentCharacter == (int) '(') || (currentCharacter == (int) '<')) && (nextCharacter == (int)'.'))) {
                 if (currentCharacter == '\n') line++;
-                if ((currentCharacter == (int) '(') && (nextCharacter == (int)'.')) insideComment = true;
+                if (((currentCharacter == (int) '(') || (currentCharacter == (int) '<')) && (nextCharacter == (int)'.')) {
+                    consume();
+                    consume();
+                    insideComment = true;
+                }
+                String comment = "";
                 while (insideComment) {
-                    if ((currentCharacter == (int) '.') && (nextCharacter == (int) ')')) {
+                    if ((currentCharacter == (int) '.') && ((nextCharacter == (int) ')'))) {
                         insideComment = false;
+                        //comment = comment + (char) currentCharacter;
                         consume();
+                        consume();
+                        return new Token(Token.COMMENT, comment);
                         //consume();
+                    } else if ((currentCharacter == (int) '.') && (nextCharacter == (int) '>')) {
+                        consume();
+                        consume();
+                        return new Token(Token.SCOMMENT, comment);
                     }
+                    comment = comment + (char) currentCharacter;
                     consume();
                 }
+                
                 consume();
             }
 

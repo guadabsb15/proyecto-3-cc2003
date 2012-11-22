@@ -227,7 +227,7 @@ public class Regexer {
     /**
      * 
      */
-    private void makeTree() {
+    public void makeTree() {
         if (getArity(stack.peek()) == 1) {
             if (stack.peek().toString().charAt(0) == (ZERONE)) {
                 BinaryTree b = new BinaryTree(new Symbol(OR), queue.pop(), new BinaryTree(EMPTY_STR));

@@ -52,6 +52,10 @@ public interface TokenTypes {
     
     public static final Token EOF_TOKEN = new Token(EOF, "-1");
     
+    public static final String COMMENT = "COMMENT";
+    
+    public static final String SCOMMENT = "SCOMMENT";
+    
     
     /**
     public static final int IDENT = 0;
