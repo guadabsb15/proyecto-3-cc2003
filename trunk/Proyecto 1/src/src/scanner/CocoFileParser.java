@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import src.Regexer;
@@ -64,9 +65,28 @@ public class CocoFileParser {
     private Map<String, String> tokensTable;
     
     /**
+     * Holds the semantic actions
+     */
+    private Map<String, String> semActionsTable;
+    
+    /**
+     * Holds the semantic actions
+     */
+    private Map<String, String> attributesTable;
+    
+    private Map<Integer, String> intIdLookup;
+    
+    private Map<String, Integer> idIntLookup;
+    
+    private Map<String, List> productionsTable;
+    
+
+    /**
      * Identifiers that have an EXCEPT KEYWORDS associated
      */
     private ArrayList<String> excepts;
+    
+    private int index;
     
     public CocoFileParser(String filename) throws Exception {
         lexer = new CocoFileScanner(filename);
@@ -78,6 +98,12 @@ public class CocoFileParser {
         tokensTable = new LinkedHashMap();
         ignoreTable = new LinkedHashMap(1);
         excepts = new ArrayList();
+        semActionsTable = new LinkedHashMap<String, String>();
+        attributesTable = new LinkedHashMap<String, String>();
+        index = 1;
+        intIdLookup = new LinkedHashMap<Integer, String>();
+        idIntLookup = new LinkedHashMap<String, Integer>();
+        productionsTable = new LinkedHashMap<String, List>();
     }
     
     public CocoFileParser(File file) throws Exception {
@@ -90,6 +116,12 @@ public class CocoFileParser {
         tokensTable = new LinkedHashMap();
         ignoreTable = new LinkedHashMap(1);
         excepts = new ArrayList();
+        semActionsTable = new LinkedHashMap<String, String>();
+        attributesTable = new LinkedHashMap<String, String>();
+        index = 1;
+        intIdLookup = new LinkedHashMap<Integer, String>();
+        idIntLookup = new LinkedHashMap<String, Integer>();
+        productionsTable = new LinkedHashMap<String, List>();
     }
     
     /**
@@ -145,7 +177,6 @@ public class CocoFileParser {
         while (!verifyValue("KEYWORDS")) {
             setDeclaration();
             matchType(Token.POINT);
-            //matchType(Token.NEWLINE);
         }
     }
     
@@ -161,7 +192,6 @@ public class CocoFileParser {
         while (!verifyValue("PRODUCTIONS") && !(verifyValue("IGNORE") && !lookAhead.type().equals(Token.EQUAL))) {
             tokenDecl();
             matchType(Token.POINT);
-            //matchType(Token.NEWLINE);
         } 
     }
 
@@ -231,8 +261,6 @@ public class CocoFileParser {
             charAdd(assigned);
             
         } 
-        //consume();
-        //return assigned;
     }
     
     private void charAdd(Set<Character> assigned) throws Exception {
@@ -355,7 +383,6 @@ public class CocoFileParser {
                 charSub(assigned);
             } 
             
-            //consume();
         } else if (currentToken.type().equals(Token.STRING)) {
             String s = currentToken.value();
             for (int i = 0; i < s.length(); i++) {
@@ -393,6 +420,8 @@ public class CocoFileParser {
         }
         exceptKw(identifier);
         tokensTable.put(identifier, regex);
+        intIdLookup.put(index, identifier);
+        idIntLookup.put(identifier, index);
         
     }
 
@@ -505,6 +534,98 @@ public class CocoFileParser {
 
     private void productions() throws Exception {
         matchValue("PRODUCTIONS");
+        while (!verifyValue("-1")) {
+            production();
+        }
+    }
+
+    private void production() throws Exception {
+        String identifier = matchType(Token.IDENT);
+        matchType(Token.EQUAL);
+        attributes(identifier);
+        semActions(identifier);
+        List rule = expression();
+        matchType(Token.POINT);
+        
+    }
+
+    private void attributes(String id) throws Exception {
+        if (currentToken.type() == Token.COMMENT) {
+            attributesTable.put(id, matchType(Token.COMMENT));
+        }
+       
+    }
+
+    private void semActions(String id) throws Exception {
+        if (currentToken.type() == Token.COMMENT) {
+            semActionsTable.put(id, matchType(Token.COMMENT));
+        }
+    }
+
+    private ArrayList<ParserStruct> expression() throws Exception {
+        ArrayList<ParserStruct> expr = new ArrayList<ParserStruct>();
+        
+        ParserStruct node = new ParserStruct();
+        node.subStruct(term());
+        expr.add(node);
+        
+        while (currentToken.value().equals("|")) {
+            consume();
+            ParserStruct additional = new ParserStruct();
+            additional.subStruct(term());
+            expr.add(additional);
+            
+        }
+        return expr;
+    }
+
+    private ArrayList<ParserStruct> term() throws Exception {
+        ArrayList<ParserStruct> term = new ArrayList<ParserStruct>();
+        term.add(factor());
+        while (!currentToken.type().equals(Token.POINT) && !currentToken.type().equals(Token.BAR)) {
+            ParserStruct factor = factor();
+            if (factor != null) term.add(factor);
+        }
+        return term;
+    }
+
+    private ParserStruct factor() throws Exception {
+        ParserStruct factor = new ParserStruct();
+        if (currentToken.type().equals(Token.STRING) || currentToken.type().equals(Token.CHAR) || currentToken.type().equals(Token.IDENT)) {
+            factor.id(currentToken.value());
+            consume();
+        } else if(currentToken.type().equals(Token.COMMENT)) {
+            factor.attribute(currentToken.value());
+            consume();
+        } else if (currentToken.type().equals(Token.SCOMMENT)) {
+            factor.semAction(currentToken.value());
+            consume();
+        } else if (currentToken.equals(Token.LPAREN)) {
+            consume();
+            ArrayList<ParserStruct> subexpr = new ArrayList<ParserStruct>();
+            while (!currentToken.equals(Token.RPAREN)) {
+                subexpr.addAll(expression());
+                consume();
+            }
+            factor.subStruct(subexpr);
+        } else if (currentToken.equals(Token.CULBRACKET)) {
+            ArrayList<ParserStruct> subexpr = new ArrayList<ParserStruct>();
+            while (!currentToken.equals(Token.CURBRACKET)) {
+                subexpr.addAll(expression());
+                consume();
+            }
+            factor.subStruct(subexpr);
+            factor.action(ParserStruct.KLEENE);
+        } else if (currentToken.equals(Token.SQLBRACKET)) {
+            ArrayList<ParserStruct> subexpr = new ArrayList<ParserStruct>();
+            while (!currentToken.equals(Token.SQRBRACKET)) {
+                subexpr.addAll(expression());
+                consume();
+            }
+            factor.subStruct(subexpr);
+            factor.action(ParserStruct.OPTIONAL);
+        } 
+        return factor;
     }
 
     

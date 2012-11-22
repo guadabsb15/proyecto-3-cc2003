@@ -24,8 +24,6 @@ import src.automatons.Pair;
 import src.automatons.State;
 import src.automatons.Symbol;
 
-
-
 /**
  * Writes the generated lexical analyzer file in Java
  * @author asus
@@ -163,16 +161,10 @@ public class FileBuilder {
             
             NFA automaton = (NFA) nfaBuilder.build(currentString);
             DFA converted = (DFA) automaton.toDfa();
-            //converted = converted.minimize();
             
-            
-            //DFA converted = (DFA) dfaBuilder.build(currentString);
             converted.attach(currentId);
             automata.add(converted);
-            
-            //automaton.attach(currentId);
-            //automata.add(automaton);
-            
+               
             addMappings(automaton.accepting(), currentId);
             
         }
@@ -234,18 +226,6 @@ public class FileBuilder {
         out.write("         createTransitions();" + '\n');
         out.write("     }" + '\n' + '\n');
         
-        /**
-        out.write("         excepts = new ArrayList<String>();" + '\n');
-        for (int i = 0; i < excepts.size(); i++) {
-            out.write("         excepts.add(" + excepts.get(i) + ")" + '\n' + '\n');
-        }
-        
-        out.write("         excepted = new Set<String>();" + '\n');
-        Iterator e = excepted.iterator();
-        while (e.hasNext()) {
-            out.write("         excepted.add(" + (String) e.next() + ");" + '\n');
-        }*/
-        
         crystallizeAutomaton(out);
         
 
@@ -270,7 +250,7 @@ public class FileBuilder {
             State old = (State) i.next();
             State simplified = new State(Integer.toString(index));
             simplification.put(old, simplified);
-            //out.write("         State s" + index + " = new State(\"" + index + "\");" + '\n');
+           
             out.write("         dfa.addState(s" + index + ");" + '\n');
             if (old.attached() != null) {
                 out.write("         s" + index + ".setAttached(\"" + old.attached() + "\");" + '\n');
@@ -284,12 +264,11 @@ public class FileBuilder {
             index++;
         }
         out.write("     }" + '\n' + '\n');
-        //out.write("         writeTransitions();" + '\n');
-        ////out.write("     }" + '\n');
+
         
         Iterator transitions = dfa.transition().keySet().iterator();
         
-        //out.write("     public void writeTransitions() throws Exception {" + '\n');
+        
         out.write("     private void createTransitions() throws Exception {" + '\n');
         while (transitions.hasNext()) {
             Pair<State, Symbol> currentPair = (Pair<State, Symbol>) transitions.next();
