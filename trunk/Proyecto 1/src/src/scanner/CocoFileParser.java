@@ -550,7 +550,12 @@ public class CocoFileParser {
         f = first(productionsTable.get("t"));
         f = first(productionsTable.get("p"));
         f = first(productionsTable.get("f"));
-        makeFollows();
+        
+        boolean make = makeFollows();
+        while (make) {
+            make = makeFollows();
+        }
+        
     }
 
     private void production() throws Exception {
@@ -610,6 +615,7 @@ public class CocoFileParser {
         ParserStruct factor = new ParserStruct();
         if (currentToken.type().equals(Token.STRING) || currentToken.type().equals(Token.CHAR) || currentToken.type().equals(Token.IDENT)) {
             factor.id(currentToken.value());
+            if (currentToken.value().equals("EPSILON")) factor.nullable(ParserStruct.NULLEPS);
             consume();
         } else if(currentToken.type().equals(Token.COMMENT)) {
             factor.attribute(currentToken.value());
@@ -692,7 +698,7 @@ public class CocoFileParser {
                 ParserStruct current = nodes.get(index);
                 if (nodes.size() > 0 ) processNode(current, f);
                 
-                while (current.nullable() != ParserStruct.NOTNULL) {
+                while (current.nullable() != ParserStruct.NOTNULL && index < nodes.size()-1) {
                     f.add("EPSILON");
                     index++;
                     current = nodes.get(index);
@@ -739,14 +745,27 @@ public class CocoFileParser {
         }
     }
 
-    private void makeFollows() {
+    private boolean makeFollows() {
+        boolean added = false;
         Iterator productions = productionsTable.keySet().iterator();
         if (startSymbol != null) {
             makeFollowEntry(startSymbol, "EOF");
         }
+        
         while (productions.hasNext()) {
             String current = (String) productions.next();
             List<ParserStruct> productionAlts = productionsTable.get(current);
+            
+            for (int i = 0; i < productionAlts.size(); i++) {
+                List<ParserStruct> alt = productionAlts.get(i).subStruct();
+                for (int j = 0; j < alt.size(); j++) {
+                    ParserStruct c = alt.get(j);
+                    if (c.action() == ParserStruct.ATTRIB || c.action() == ParserStruct.SEMACTION) {
+                        alt.remove(c);
+                    }
+                }
+                
+            }
             
             for (int i = 0; i < productionAlts.size(); i++) {
                 List<ParserStruct> alt = productionAlts.get(i).subStruct();
@@ -760,21 +779,27 @@ public class CocoFileParser {
                         //Rule 2
                         if (j+1 < nodes.size() ) {
                             Set<String> toAdd = firstSeq(nodes.subList(j+1, nodes.size()));
-                            boolean nullable = toAdd.remove("EPSILON");
-                            if (!nullable) {
-                                makeFollowEntry(currentNode.id(), toAdd);
-                            } else {
-                                makeFollowEntry(currentNode.id(), followTable.get(current));
+                            boolean nullable = nullable(nodes.get(j+1).id());
+                           
+                            boolean eps = toAdd.remove("EPSILON");
+                                
+                            added = added || makeFollowEntry(currentNode.id(), toAdd);
+                             
+                            if (eps) {
+                                boolean val = makeFollowEntry(currentNode.id(), followTable.get(current));
+                                added = added || val;
                             }
+                           
                              
                         } else {
-                            makeFollowEntry(currentNode.id(), followTable.get(current));
+                            added = added || makeFollowEntry(currentNode.id(), followTable.get(current));
                         }
                     }
                 }
 
             }
         }
+        return added;
     }
     
     private ArrayList<ParserStruct> gramIterator(List<ParserStruct> list) {
@@ -783,7 +808,7 @@ public class CocoFileParser {
             ParserStruct node = list.get(i);
             if (node.subStruct() == null && (node.action() == 0)) { // != ParserStruct.SEMACTION && node.action() != ParserStruct.ATTRIB)) {
                 iter.add(node);
-            } else if (node.subStruct() != null && (node.action() != ParserStruct.SEMACTION && node.action() != ParserStruct.ATTRIB)) {
+            } else if ((node.subStruct() != null) && ((node.action() != ParserStruct.SEMACTION) && (node.action() != ParserStruct.ATTRIB))) {
                 iter.addAll(node.subStruct());
             }
         }
@@ -792,42 +817,77 @@ public class CocoFileParser {
     
    
   
-    private void makeFollowEntry(String symbol, String string) {
+    private boolean makeFollowEntry(String symbol, String string) {
+        boolean added = true;
         if (followTable.containsKey(symbol)) {
             if (followTable.get(symbol) != null) {
                 Set<String> val = followTable.get(symbol);
-                val.add(string);
+                added = val.add(string);
                 followTable.put(symbol, val);
+                return added;
             } else {
                 Set<String> val = new LinkedHashSet<String>();
-                val.add(string);
+                added = val.add(string);
                 followTable.put(symbol, val);
+                return added;
             }
             
         } else {
             Set<String> val = new LinkedHashSet();
             val.add(string);
             followTable.put(symbol, val);
+            return true;
         }
     }
     
-    private void makeFollowEntry(String symbol, Set<String> string) {
+    private boolean makeFollowEntry(String symbol, Set<String> string) {
+        boolean added = true;
         if (followTable.containsKey(symbol)) {
+            if (string == null) return false;
             if (followTable.get(symbol) != null) {
                 Set<String> val = followTable.get(symbol);
-                val.addAll(string);
+                added = val.addAll(string);
                 followTable.put(symbol, val);
+                
             }
+            return added;
             
         } else {
+            //if (string == null) return false;
             Set<String> val = new LinkedHashSet();
-            val.addAll(string);
+            if (string != null) val.addAll(string);
             followTable.put(symbol, val);
+            return true;
         }
     }
+    
+    private boolean nullable(String id) {
+        boolean n = false;
+        if (productionsTable.containsKey(id)) {
+            List<ParserStruct> alts = productionsTable.get(id);
+            for (int i = 0; i < alts.size(); i++) {
+                n = n || nullable(alts.get(i).subStruct());
+                if (n == true) return n;
+            }
+        } else {
+            return false;
+        }
+        return n;
+    }
 
+    private boolean nullable(List<ParserStruct> subList) {
+        boolean n = true;
+        for (int i = 0; i < subList.size(); i++) {
+            ParserStruct current = subList.get(i);
+            n = n && nullable(current);
+            if (n == false) return n;
+        }
+        return n;
+        
+    }
+    
     private boolean nullable(ParserStruct current) {
-        return (current.action() == ParserStruct.KLEENE || current.action() == ParserStruct.OPTIONAL);
+        return (current.id().equals("EPSILON") || current.action() != 0 || current.nullable() != 0);
     }
 
     private void nullabilizeK(ArrayList<ParserStruct> subexpr) {
@@ -849,6 +909,8 @@ public class CocoFileParser {
                 }
          }
     }
+
+    
 
     
    
