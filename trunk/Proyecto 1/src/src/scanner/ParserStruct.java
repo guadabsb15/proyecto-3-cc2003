@@ -23,6 +23,10 @@ public class ParserStruct {
     
     public static final int OPTIONAL = 3;
     
+    public static final int SEMACTION = 4;
+    
+    public static final int ATTRIB = 5;
+    
     private String attribute;
     
     private String semAction;
@@ -33,8 +37,30 @@ public class ParserStruct {
     
     private List<ParserStruct> subStruct;
     
+    private int nullable; 
+    
+    public static final int NOTNULL = 0;
+    
+    public static final int NULLKLEENE = 1;
+    
+    public static final int NULLKBUNDLE = 2;
+    
+    public static final int NULLOPT= 3;
+    
+    public static final int NULLOBUNDLE = 4;
+    
+    
+    
     public ParserStruct() {
-     
+        nullable = 0;
+    }
+    
+    public int nullable() {
+        return nullable;
+    }
+    
+    public void nullable(int v) {
+        nullable = v;
     }
     
     public void semAction(String sem) {
