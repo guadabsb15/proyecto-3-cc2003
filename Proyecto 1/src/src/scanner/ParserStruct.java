@@ -49,6 +49,8 @@ public class ParserStruct {
     
     public static final int NULLOBUNDLE = 4;
     
+    public static final int NULLEPS = 5;
+    
     
     
     public ParserStruct() {

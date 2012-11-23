@@ -22,12 +22,12 @@ number = digit{digit}.
 
 PRODUCTIONS
 
-s = t e.
+s = t (. jaja.) e.
 
-e = "+" t e.
+e = "+" t e | EPSILON.
 
-t = f p.
+t = f  p.
 
-p = "*" f p.
+p = "*" f p | EPSILON.
 
-f = "(" s ")" | ident.
+f = "(" s ")".
